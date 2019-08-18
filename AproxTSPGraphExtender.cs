@@ -133,8 +133,7 @@ namespace ASD.Graphs
                 if (vert == 0)
                     return true;
                 var w = g.GetEdgeWeight(lastVert, vert);
-                cycleCounter++;
-                cycle[cycleCounter] = new Edge(lastVert, vert, w);
+                cycle[cycleCounter++] = new Edge(lastVert, vert, w);
                 weight += w;
                 lastVert = vert;
                 return true;
