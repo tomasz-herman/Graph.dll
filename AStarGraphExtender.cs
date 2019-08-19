@@ -3,6 +3,10 @@ using System.Collections.Generic;
 
 namespace ASD.Graphs
 {
+    /// <summary>
+    /// Rozszerzenie klasy <see cref="Graph"/> o algorytm A*
+    /// </summary>
+    /// <seealso cref="ASD.Graphs"/>
     public static class AStarGraphExtender
     {
         public static bool AStar(this Graph g, int s, int t, out Edge[] p, Func<int, int, double> h = null)

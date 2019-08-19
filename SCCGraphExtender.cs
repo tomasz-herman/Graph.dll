@@ -3,6 +3,10 @@ using System.Collections.Generic;
 
 namespace ASD.Graphs
 {
+    /// <summary>
+    /// Rozszerzenie klasy <see cref="Graph"/> o algorytmy wyznaczania odwrotności grafu i silnie spójnych składowych grafu
+    /// </summary>
+    /// <seealso cref="ASD.Graphs"/>
     public static class SCCGraphExtender
     {
         public static Graph Reverse(this Graph g)

@@ -2,6 +2,10 @@
 
 namespace ASD.Graphs
 {
+    /// <summary>
+    /// Rozszerzenie klasy <see cref="Graph"/> o rozwiązywanie problemu komiwojażera metodą pełnego przeglądu (backtracking)
+    /// </summary>
+    /// <seealso cref="ASD.Graphs"/>
     public static class BacktrackingTSPGraphExtender
     {
         public static (double weight, Edge[] cycle) BacktrackingTSP(this Graph g)

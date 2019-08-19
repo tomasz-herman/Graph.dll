@@ -4,6 +4,10 @@ using System.Linq;
 
 namespace ASD.Graphs
 {
+    /// <summary>
+    /// Rozszerzenie klasy <see cref="Graph"/> o algorytmy wyznaczania maksymalnego przepływu o minimalnym koszcie
+    /// </summary>
+    /// <seealso cref="ASD.Graphs"/>
     public static class MinCostFlowGraphExtender
     {
         

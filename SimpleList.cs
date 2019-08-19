@@ -5,6 +5,13 @@ using System.Runtime.Serialization;
 
 namespace ASD.Graphs
 {
+    /// <summary>
+    /// Prosta lista elementów klucz-wartość
+    /// </summary>
+    /// <typeparam name="TKey">Typ kluczy elementów przechowywanych na liście</typeparam>
+    /// <typeparam name="TValue">Typ wartości elementów przechowywanych na liście</typeparam>
+    /// <remarks>Wartości kluczy muszą być unikalne.</remarks>
+    /// <seealso cref="ASD.Graphs"/>
     [Serializable]
     public class SimpleList<TKey, TValue> : IAbstractDictionary<TKey, TValue>
     {

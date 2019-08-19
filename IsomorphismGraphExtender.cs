@@ -1,12 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace ASD.Graphs
 {
+    /// <summary>
+    /// Rozszerzenie klasy Graph o algorytm badania izomorfizmu grafów
+    /// </summary>
+    /// <seealso cref="ASD.Graphs"/>
     public static class IsomorphismGraphExtender
     {
         public static bool IsIsomorphic(this Graph g, Graph h, int[] map)

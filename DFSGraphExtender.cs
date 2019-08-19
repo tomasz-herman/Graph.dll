@@ -3,6 +3,10 @@ using System.Linq;
 
 namespace ASD.Graphs
 {
+    /// <summary>
+    /// Rozszerzenie klasy Graph o przeszukiwanie w głąb (rekurencyjne)
+    /// </summary>
+    /// <seealso cref="ASD.Graphs"/>
     public static class DFSGraphExtender
     {
         public static bool DFSearchAll(this Graph g, Predicate<int> preVisit, Predicate<int> postVisit, out int cc, int[] nr = null)

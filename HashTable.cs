@@ -5,7 +5,13 @@ using System.Runtime.Serialization;
 
 namespace ASD.Graphs
 {
-
+    /// <summary>
+    /// Tablica haszowana
+    /// </summary>
+    /// <typeparam name="TKey">Typ kluczy elementów przechowywanych w tablicy</typeparam>
+    /// <typeparam name="TValue">Typ wartości elementów przechowywanych w tablicy</typeparam>
+    /// <remarks>Wartości kluczy muszą być unikalne.</remarks>
+    /// <seealso cref="ASD.Graphs"/>
     [Serializable]
     public class HashTable<TKey, TValue> : IAbstractDictionary<TKey, TValue>
     {

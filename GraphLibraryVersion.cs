@@ -1,5 +1,9 @@
 ﻿namespace ASD.Graphs
 {
+    /// <summary>
+    /// Numer wersji biblioteki
+    /// </summary>
+    /// <seealso cref="ASD.Graphs"/>
     public static class GraphLibraryVersion
     {
         public static int Major => 7;

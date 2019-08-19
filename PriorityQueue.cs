@@ -4,14 +4,16 @@ using System.Runtime.Serialization;
 
 namespace ASD.Graphs
 {
-    public class RealPriorityQueue<TPriority, TValue> where TPriority: IComparable
-    {
-        //TODO
-        
-        //The one below is shit
-    }
-    
-    
+    /// <summary>
+    /// Kolejka priorytetowa
+    /// </summary>
+    /// <typeparam name="TKey">Typ przechowywanych elementów (kluczy)</typeparam>
+    /// <typeparam name="TPriority">Typ priorytetów</typeparam>
+    /// <remarks>
+    /// Kryterium porównywania elementów należy podać jako parametr konstruktora.<para/>
+    /// Implementacja za pomocą kopca.
+    /// </remarks>
+    /// <seealso cref="ASD.Graphs"/>
     [Serializable]
     public class PriorityQueue<TKey, TPriority>
     {

@@ -1,11 +1,13 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace ASD.Graphs
 {
+    /// <summary>
+    /// Rozszerzenie klasy <see cref="Graph"/> o algorytmy wyznaczania najkrótszych ścieżek
+    /// </summary>
+    /// <seealso cref="ASD.Graphs"/>
     public static class ShortestPathsGraphExtender
     {
         public static bool FordBellmanShortestPaths(this Graph g, int s, out PathsInfo[] d)

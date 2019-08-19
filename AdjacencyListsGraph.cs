@@ -3,6 +3,11 @@ using System.Collections.Generic;
 
 namespace ASD.Graphs
 {
+    /// <summary>
+    /// Graf reprezentowany za pomocą list sąsiedztwa (list incydencji)
+    /// </summary>
+    /// <typeparam name="TAdjacencyList">Typ implementujący listy incydencji</typeparam>
+    /// <seealso cref="ASD.Graphs"/>
     [Serializable]
     public sealed class AdjacencyListsGraph<TAdjacencyList> : Graph where TAdjacencyList : IAdjacencyList, new()
     {

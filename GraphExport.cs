@@ -6,6 +6,11 @@ using System.IO;
 
 namespace ASD.Graphs
 {
+    /// <summary>
+    /// "Eksporter Grafów"
+    /// </summary>
+    /// <remarks>Wymaga zainstalowania pakietu Graphviz (www.graphviz.org).</remarks>
+    /// <seealso cref="ASD.Graphs"/>
     public class GraphExport
     {
         public GraphExport(bool showWeights = true, string weightsFormat = null, string graphvizPath = null)

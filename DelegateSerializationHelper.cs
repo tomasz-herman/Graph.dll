@@ -5,6 +5,10 @@ using System.Reflection;
 
 namespace ASD.Graphs
 {
+    /// <summary>
+    /// Klasa pomocnicza do serializacji delegacji
+    /// </summary>
+    /// <seealso cref="ASD.Graphs"/>
     public static class DelegateSerializationHelper
     {
         public static string Serialize(Delegate @delegate)

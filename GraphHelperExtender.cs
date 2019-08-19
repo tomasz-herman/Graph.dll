@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace ASD.Graphs
 {
+    /// <summary>
+    /// Rozszerzenie klasy <see cref="Graph"/> (i nie tylko tej) o różne metody pomocnicze
+    /// </summary>
+    /// <seealso cref="ASD.Graphs"/>
     public static class GraphHelperExtender
     {
         public static bool IsNaN(this double d)

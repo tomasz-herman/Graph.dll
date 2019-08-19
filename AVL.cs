@@ -4,94 +4,16 @@ using System.Collections.Generic;
 
 namespace ASD.Graphs
 {
-    
-    [Serializable]
-    public sealed class AVLEnumerator<TKey, TValue> : IEnumerator<KeyValuePair<TKey, TValue>>
-    {
-        private readonly AVLNode<TKey, TValue> _root;
-        private Action _action;
-        private AVLNode<TKey, TValue> _current;
-        private AVLNode<TKey, TValue> _right;
 
-        public AVLEnumerator(AVLNode<TKey, TValue> root)
-        {
-            _right = _root = root;
-            _action = _root == null ? Action.End : Action.Right;
-        }
-
-        public bool MoveNext()
-        {
-            switch (_action)
-            {
-                case Action.Right:
-                    _current = _right;
-
-                    while (_current.Left != null)
-                    {
-                        _current = _current.Left;
-                    }
-
-                    _right = _current.Right;
-                    _action = _right != null ? Action.Right : Action.Parent;
-
-                    return true;
-
-                case Action.Parent:
-                    while (_current.Parent != null)
-                    {
-                        var previous = _current;
-
-                        _current = _current.Parent;
-
-                        if (_current.Left != previous) continue;
-                        _right = _current.Right;
-                        _action = _right != null ? Action.Right : Action.Parent;
-
-                        return true;
-                    }
-
-                    _action = Action.End;
-
-                    return false;
-
-                default:
-                    return false;
-            }
-        }
-
-        public void Reset()
-        {
-            _right = _root;
-            _action = _root == null ? Action.End : Action.Right;
-        }
-
-        public KeyValuePair<TKey, TValue> Current => new KeyValuePair<TKey, TValue>(_current.Key, _current.Value);
-
-        object IEnumerator.Current => Current;
-
-        public void Dispose()
-        {
-        }
-
-        private enum Action
-        {
-            Parent,
-            Right,
-            End
-        }
-    }
-    
-    [Serializable]
-    public sealed class AVLNode<TKey, TValue>
-    {
-        public AVLNode<TKey, TValue> Parent;
-        public AVLNode<TKey, TValue> Left;
-        public AVLNode<TKey, TValue> Right;
-        public TKey Key;
-        public TValue Value;
-        public int Balance;
-    }
-
+    /// <summary>
+    /// Drzewa AVL
+    /// </summary>
+    /// <typeparam name="TKey">Typ kluczy elementów przechowywanych w drzewie</typeparam>
+    /// <typeparam name="TValue">Typ wartości elementów przechowywanych w drzewie</typeparam>
+    /// <remarks>
+    /// Wartości kluczy muszą być unikalne.
+    /// </remarks>
+    /// <seealso cref="ASD.Graphs"/>
     [Serializable]
     public class AVL<TKey, TValue> : IAbstractDictionary<TKey, TValue>
     {
@@ -107,7 +29,7 @@ namespace ASD.Graphs
 
         }
 
-        public AVLNode<TKey, TValue> Root { get; private set; }
+        private AVLNode Root { get; set; }
 
         public int Count { get; private set; }
 
@@ -152,7 +74,7 @@ namespace ASD.Graphs
 
                     if (left == null)
                     {
-                        node.Left = new AVLNode<TKey, TValue> { Key = key, Value = value, Parent = node };
+                        node.Left = new AVLNode { Key = key, Value = value, Parent = node };
 
                         InsertBalance(node, 1);
                         Count++;
@@ -167,7 +89,7 @@ namespace ASD.Graphs
 
                     if (right == null)
                     {
-                        node.Right = new AVLNode<TKey, TValue> { Key = key, Value = value, Parent = node };
+                        node.Right = new AVLNode { Key = key, Value = value, Parent = node };
 
                         InsertBalance(node, -1);
                         Count++;
@@ -182,12 +104,12 @@ namespace ASD.Graphs
                 }
             }
 
-            Root = new AVLNode<TKey, TValue> { Key = key, Value = value };
+            Root = new AVLNode { Key = key, Value = value };
             Count++;
             return true;
         }
 
-        private void InsertBalance(AVLNode<TKey, TValue> node, int balance)
+        private void InsertBalance(AVLNode node, int balance)
         {
             while (node != null)
             {
@@ -237,7 +159,7 @@ namespace ASD.Graphs
             }
         }
 
-        private AVLNode<TKey, TValue> RotateLeft(AVLNode<TKey, TValue> node)
+        private AVLNode RotateLeft(AVLNode node)
         {
             var right = node.Right;
             var rightLeft = right.Left;
@@ -272,7 +194,7 @@ namespace ASD.Graphs
             return right;
         }
 
-        private AVLNode<TKey, TValue> RotateRight(AVLNode<TKey, TValue> node)
+        private AVLNode RotateRight(AVLNode node)
         {
             var left = node.Left;
             var leftRight = left.Right;
@@ -307,7 +229,7 @@ namespace ASD.Graphs
             return left;
         }
 
-        private AVLNode<TKey, TValue> RotateLeftRight(AVLNode<TKey, TValue> node)
+        private AVLNode RotateLeftRight(AVLNode node)
         {
             var left = node.Left;
             var leftRight = left.Right;
@@ -367,7 +289,7 @@ namespace ASD.Graphs
             return leftRight;
         }
 
-        private AVLNode<TKey, TValue> RotateRightLeft(AVLNode<TKey, TValue> node)
+        private AVLNode RotateRightLeft(AVLNode node)
         {
             var right = node.Right;
             var rightLeft = right.Left;
@@ -575,7 +497,7 @@ namespace ASD.Graphs
             return false;
         }
 
-        private void DeleteBalance(AVLNode<TKey, TValue> node, int balance)
+        private void DeleteBalance(AVLNode node, int balance)
         {
             while (node != null)
             {
@@ -635,7 +557,7 @@ namespace ASD.Graphs
             }
         }
 
-        private static void Replace(AVLNode<TKey, TValue> target, AVLNode<TKey, TValue> source)
+        private static void Replace(AVLNode target, AVLNode source)
         {
             var left = source.Left;
             var right = source.Right;
@@ -689,12 +611,101 @@ namespace ASD.Graphs
 
         public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
         {
-            return new AVLEnumerator<TKey, TValue>(Root);
+            return new AVLEnumerator(Root);
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
         }
+        
+                
+        [Serializable]
+        private sealed class AVLEnumerator : IEnumerator<KeyValuePair<TKey, TValue>>
+        {
+            private readonly AVLNode _root;
+            private Action _action;
+            private AVLNode _current;
+            private AVLNode _right;
+
+            public AVLEnumerator(AVLNode root)
+            {
+                _right = _root = root;
+                _action = _root == null ? Action.End : Action.Right;
+            }
+
+            public bool MoveNext()
+            {
+                switch (_action)
+                {
+                    case Action.Right:
+                        _current = _right;
+
+                        while (_current.Left != null)
+                        {
+                            _current = _current.Left;
+                        }
+
+                        _right = _current.Right;
+                        _action = _right != null ? Action.Right : Action.Parent;
+
+                        return true;
+
+                    case Action.Parent:
+                        while (_current.Parent != null)
+                        {
+                            var previous = _current;
+
+                            _current = _current.Parent;
+
+                            if (_current.Left != previous) continue;
+                            _right = _current.Right;
+                            _action = _right != null ? Action.Right : Action.Parent;
+
+                            return true;
+                        }
+
+                        _action = Action.End;
+
+                        return false;
+
+                    default:
+                        return false;
+                }
+            }
+
+            public void Reset()
+            {
+                _right = _root;
+                _action = _root == null ? Action.End : Action.Right;
+            }
+
+            public KeyValuePair<TKey, TValue> Current => new KeyValuePair<TKey, TValue>(_current.Key, _current.Value);
+
+            object IEnumerator.Current => Current;
+
+            public void Dispose()
+            {
+            }
+
+            private enum Action
+            {
+                Parent,
+                Right,
+                End
+            }
+        }
+
+        [Serializable]
+        private sealed class AVLNode
+        {
+            public AVLNode Parent;
+            public AVLNode Left;
+            public AVLNode Right;
+            public TKey Key;
+            public TValue Value;
+            public int Balance;
+        }
     }
+
 }

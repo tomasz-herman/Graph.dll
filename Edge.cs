@@ -3,11 +3,24 @@ using System.Globalization;
 
 namespace ASD.Graphs
 {
+    /// <summary>
+    /// Struktura opisująca krawędź grafu
+    /// </summary>
+    /// <seealso cref="ASD.Graphs"/>
     [Serializable]
     public struct Edge
     {
+        /// <summary>
+        /// Numer wierzchołka początkowego krawędzi
+        /// </summary>
         public readonly int From;
+        /// <summary>
+        /// Numer wierzchołka końcowego krawędzi
+        /// </summary>
         public readonly int To;
+        /// <summary>
+        /// Waga krawędzi
+        /// </summary>
         public readonly double Weight;
         
         public Edge(int from, int to, double weight = 1.0)

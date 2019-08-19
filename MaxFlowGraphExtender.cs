@@ -5,6 +5,10 @@ using System.Runtime.CompilerServices;
 
 namespace ASD.Graphs
 {
+    /// <summary>
+    /// Rozszerzenie klasy <see cref="Graph"/> o algorytmy wyznaczania maksymalnego przepływu w sieciach
+    /// </summary>
+    /// <seealso cref="ASD.Graphs"/>
     public static class MaxFlowGraphExtender
     {
         public static (double value, Graph flow) FordFulkersonDinicMaxFlow(this Graph g, int source, int target, AugmentFlow af, bool matrixToHashTable = true)

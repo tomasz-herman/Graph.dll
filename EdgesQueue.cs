@@ -3,6 +3,10 @@ using System.Collections.Generic;
 
 namespace ASD.Graphs
 {
+    /// <summary>
+    /// Kolejka krawędzi
+    /// </summary>
+    /// <seealso cref="ASD.Graphs"/>
     [Serializable]
     public class EdgesQueue : IEdgesContainer
     {

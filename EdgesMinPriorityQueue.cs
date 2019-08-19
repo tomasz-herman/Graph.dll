@@ -3,6 +3,14 @@ using System.Collections.Generic;
 
 namespace ASD.Graphs
 {
+    /// <summary>
+    /// Kolejka priorytetowa krawędzi, lepszy priorytet mają krawędzie o mniejszej wadze
+    /// </summary>
+    /// <remarks>
+    /// Implementacja za pomocą kopca.<para/>
+    /// W przypadku równych wag porównywane są numery wierzchołków (najpierw początkowych, potem końcowych) - lepsze są mniejsze numery.
+    /// </remarks>
+    /// <seealso cref="ASD.Graphs"/>
     [Serializable]
     public class EdgesMinPriorityQueue : EdgesPriorityQueue
     {

@@ -4,6 +4,10 @@ using System.Threading;
 
 namespace ASD.Graphs
 {
+    /// <summary>
+    /// Rozszerzenie klasy <see cref="Graph"/> o rozwiązywanie problemu komiwojażera metodą podziału i ograniczeń
+    /// </summary>
+    /// <seealso cref="ASD.Graphs"/>
     public static class BranchAndBoundTSPGraphExtender
     {
         public static (double weight, Edge[] cycle) BranchAndBoundTSP(this Graph g, bool multiThread = false)

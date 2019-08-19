@@ -3,6 +3,10 @@ using System.Collections.Generic;
 
 namespace ASD.Graphs
 {
+    /// <summary>
+    /// Rozszerzenie klasy <see cref="Graph"/> o ogólne algorytmy przeszukiwania (nie rekurencyjne)
+    /// </summary>
+    /// <seealso cref="ASD.Graphs"/>
     public static class GeneralSearchGraphExtender
     {
         public static bool GeneralSearchAll<TEdgesContainer>(this Graph g, Predicate<int> preVisitVertex, Predicate<int> postVisitVertex, Predicate<Edge> visitEdge, out int cc, int[] nr = null) where TEdgesContainer : IEdgesContainer, new()

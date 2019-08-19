@@ -2,6 +2,16 @@
 
 namespace ASD.Graphs
 {
+    /// <summary>
+    /// Struktura danych dla problemu Union-Find
+    /// </summary>
+    /// <remarks>
+    /// W C# to oczywiście klasa, a nie struktura.<para/>
+    /// To nie jest optymalna wydajnościowo implementacja (ale calkiem dobra !). Implementuje kompresję ścieżek, nie implementuje łączenia według rang.
+    /// Implementacja ta jest za to zdecydowanie najprostsza.<para/>
+    /// Wymaga aby badane elementy były identyfikowane za pomocą liczb całkowitych 0,1,...,n-1 (dla problemu rozmiaru n).
+    /// </remarks>
+    /// <seealso cref="ASD.Graphs"/>
     [Serializable]
     public class UnionFind
     {

@@ -2,6 +2,10 @@
 
 namespace ASD.Graphs
 {
+    /// <summary>
+    /// Rozszerzenie klasy <see cref="Graph"/> o algorytmy wyznaczania minimalnego drzewa rozpinającego grafu
+    /// </summary>
+    /// <seealso cref="ASD.Graphs"/>
     public static class MSTGraphExtender
     {
         public static (double weight, Graph mst) Prim(this Graph g)

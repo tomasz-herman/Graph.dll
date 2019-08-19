@@ -4,6 +4,10 @@ using System.Runtime.CompilerServices;
 
 namespace ASD.Graphs
 {
+    /// <summary>
+    /// Rozszerzenie klasy <see cref="Graph"/> o algorytm wyznaczania punktów artykulacji i składowych dwuspójnych
+    /// </summary>
+    /// <seealso cref="ASD.Graphs"/>
     public static class BiconnectedGraphExtender
     {
         public static (int count, Graph bcc, int[] ap) BiconnectedComponents(this Graph g)

@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace ASD.Graphs
 {
+    /// <summary>
+    /// Rozszerzenie klasy <see cref="Graph"/> o rozwiązywanie problemu komiwojażera metodami przybliżonymi
+    /// </summary>
+    /// <seealso cref="ASD.Graphs"/>
     public static class AproxTSPGraphExtender
     {
         /// <summary>

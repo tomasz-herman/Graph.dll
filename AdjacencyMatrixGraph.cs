@@ -4,6 +4,10 @@ using System.Runtime.Serialization;
 
 namespace ASD.Graphs
 {
+    /// <summary>
+    /// Graf o reprezentowany za pomocą macierzy sąsiedztwa
+    /// </summary>
+    /// <seealso cref="ASD.Graphs"/>
     [Serializable]
     public sealed class AdjacencyMatrixGraph : Graph
     {

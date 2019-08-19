@@ -6,6 +6,17 @@ using System.Xml;
 
 namespace ASD.Graphs
 {
+    /// <summary>
+    /// Abstrakcyjna klasa bazowa dla wszystkich klas implementujących grafy
+    /// </summary>
+    /// <remarks>
+    /// Klasa definiuje metody i właściwości dostępne dla wszystkich grafów niezależnie od sposobu ich reprezentacji.<para/>
+    /// Nie da się bezpośrednio tworzyć obiektów tej klasy, ale wszystkie klasy implementujące grafy muszą być jej klasami pochodnymi i muszą korzystać z jej konstruktorów.<para/>
+    /// Każda klasa pochodna powinna też mieć konstruktor z parametrami (bool,int) (wymagany przy tworzeniu grafu na podstwie pliku XML).<para/>
+    /// Klasa implementuje interfejs <see cref="IEnumerable{T}"/> jedynie formalnie.
+    /// Jest to potrzebne aby można było inicjalizować grafy analogicznie jak inne kolekcje. Funcjonalność wymagana przez ten interfejs nie jest dostarczana.
+    /// </remarks>
+    /// <seealso cref="ASD.Graphs"/>
     [Serializable]
     public abstract class Graph : IEnumerable<Edge>
     {

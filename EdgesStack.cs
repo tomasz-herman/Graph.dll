@@ -3,6 +3,10 @@ using System.Collections.Generic;
 
 namespace ASD.Graphs
 {
+    /// <summary>
+    /// Stos krawędzi
+    /// </summary>
+    /// <seealso cref="ASD.Graphs"/>
     [Serializable]
     public class EdgesStack : IEdgesContainer
     {

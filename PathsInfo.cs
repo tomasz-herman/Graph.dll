@@ -2,6 +2,10 @@
 
 namespace ASD.Graphs
 {
+    /// <summary>
+    /// Pomocnicza struktura ułatwiająca konstruowanie ścieżek w grafach
+    /// </summary>
+    /// <seealso cref="ASD.Graphs"/>
     public struct PathsInfo
     {
         public double Dist;

@@ -2,6 +2,10 @@
 
 namespace ASD.Graphs
 {
+    /// <summary>
+    /// Rozszerzenie klasy <see cref="Random"/> o wygodne generowanie całkowitych lub zmiennopozycyjnych liczb pseudolosowych z zadanego przedziału
+    /// </summary>
+    /// <seealso cref="ASD.Graphs"/>
     public static class RandomExtender
     {
         public static double Next(this Random rnd, double minValue, double maxValue, bool integer)

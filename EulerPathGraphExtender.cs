@@ -3,6 +3,10 @@ using System.Linq;
 
 namespace ASD.Graphs
 {
+    /// <summary>
+    /// Rozszerzenie klasy <see cref="Graph"/> o wyszukiwanie ścieżki Eulera
+    /// </summary>
+    /// <seealso cref="ASD.Graphs"/>
     public static class EulerPathGraphExtender
     {
         public static bool EulerPath(this Graph g, out Edge[] ec)
