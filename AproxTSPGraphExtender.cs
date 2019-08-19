@@ -8,6 +8,19 @@ namespace ASD.Graphs
 {
     public static class AproxTSPGraphExtender
     {
+        /// <summary>
+        /// Znajduje rozwiązanie przybliżone problemu komiwojażera naiwnym algorytmem zachłannym
+        /// </summary>
+        /// <param name="g">Badany graf</param>
+        /// <returns>Krotka (weight, cycle) składająca się z długości (sumy wag krawędzi) znalezionego cyklu i tablicy krawędzi tworzących ten cykl)</returns>
+        /// <remarks>
+        /// Elementy (krawędzie) umieszczone są w tablicy cycle w kolejności swojego następstwa w znalezionym cyklu Hamiltona.<para/>
+        /// Jeśli naiwny algorytm zachłanny nie znajdzie w badanym grafie cyklu Hamiltona (co oczywiście nie znaczy, że taki cykl nie istnieje) to metoda zwraca krotkę (NaN,null).<para/>
+        /// Metodę można stosować dla grafów skierowanych i nieskierowanych.<para/>
+        /// Metodę można stosować dla dla grafów z dowolnymi (również ujemnymi) wagami krawędzi.
+        /// </remarks>
+        /// <seealso cref="AproxTSPGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static (double weight, Edge[] cycle) SimpleGreedyTSP(this Graph g)
         {
             if (g.VerticesCount <= (g.Directed ? 1 : 2))
@@ -43,6 +56,19 @@ namespace ASD.Graphs
             return (weight, cycle);
         }
         
+        /// <summary>
+        /// Znajduje rozwiązanie przybliżone problemu komiwojażera algorytmem zachłannym "kruskalopodobnym"
+        /// </summary>
+        /// <param name="g">Badany graf</param>
+        /// <returns>Krotka (weight, cycle) składająca się z długości (sumy wag krawędzi) znalezionego cyklu i tablicy krawędzi tworzących ten cykl)</returns>
+        /// <remarks>
+        /// Elementy (krawędzie) umieszczone są w tablicy cycle w kolejności swojego następstwa w znalezionym cyklu Hamiltona.<para/>
+        /// Jeśli algorytm "kruskalopodobny" nie znajdzie w badanym grafie cyklu Hamiltona (co oczywiście nie znaczy, że taki cykl nie istnieje) to metoda zwraca krotkę (NaN,null).<para/>
+        /// Metodę można stosować dla grafów skierowanych i nieskierowanych.<para/>
+        /// Metodę można stosować dla dla grafów z dowolnymi (również ujemnymi) wagami krawędzi.
+        /// </remarks>
+        /// <seealso cref="AproxTSPGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static (double weight, Edge[] cycle) KruskalTSP(this Graph g)
         {
             if (g.VerticesCount <= (g.Directed ? 1 : 2))
@@ -89,6 +115,26 @@ namespace ASD.Graphs
             return (weight, cycle);
         }
         
+        /// <summary>
+        /// Znajduje rozwiązanie przybliżone problemu komiwojażera tworząc cykl Hamiltona na podstawie drzewa rozpinającego
+        /// </summary>
+        /// <param name="g">Badany graf</param>
+        /// <param name="version">Wersja algorytmu (prosta, Christofidesa lub zmodyfikowana Christofidesa)</param>
+        /// <returns>Krotka (weight, cycle) składająca się z długości (sumy wag krawędzi) znalezionego cyklu i tablicy krawędzi tworzących ten cykl)</returns>
+        /// <remarks>
+        /// Parametr version opisany jest w wyliczeniu <see cref="TSPTreeBasedVersion"/>.<para/>
+        /// Elementy (krawędzie) umieszczone są w tablicy cycle w kolejności swojego następstwa w znalezionym cyklu Hamiltona.<para/>
+        /// Jeśli algorytm bazujący na drzewie rozpinającym nie znajdzie w badanym grafie cyklu Hamiltona (co oczywiście nie znaczy,
+        /// że taki cykl nie istnieje) to metoda zwraca krotkę (NaN,null).<para/>
+        /// Metodę można stosować dla grafów nieskierowanych.<para/>
+        /// Zastosowana do grafu skierowanego zgłasza wyjątek <see cref="ArgumentException"/>>.<para/>
+        /// Dla wartości parametru <see cref="TSPTreeBasedVersion.Simple"/>) metodę można stosować dla dla grafów z dowolnymi (również ujemnymi) wagami krawędzi,
+        /// dla innych wartości parametru version wagi krawędzi powinny być z przedziału &lt;float.MinValue,float.MaxValue&gt;.<para/>
+        /// Dla grafu nieskierowanego spełniajacego nierówność trójkąta metoda realizuje 1.5-aproksymacyjny algorytm Christofidesa
+        /// (gdy parametr version ma wartość <see cref="TSPTreeBasedVersion.Christofides"/>) lub algorytm 2-aproksymacyjny (dla innych wartości parametru version).
+        /// </remarks>
+        /// <seealso cref="AproxTSPGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static (double weight, Edge[] cycle) TreeBasedTSP(this Graph g, TSPTreeBasedVersion version = TSPTreeBasedVersion.Simple)
         {
             if (g.Directed)
@@ -146,6 +192,24 @@ namespace ASD.Graphs
             return !weight.IsNaN() ? (weight, cycle) : (double.NaN, null);
         }
         
+        /// <summary>
+        /// Znajduje rozwiązanie przybliżone problemu komiwojażera algorytmem przyrostowym
+        /// </summary>
+        /// <param name="g">Badany graf</param>
+        /// <param name="select">Metoda wyboru wstawianego wierzchołka</param>
+        /// <returns>Krotka (weight, cycle) składająca się z długości (sumy wag krawędzi) znalezionego cyklu i tablicy krawędzi tworzących ten cykl)</returns>
+        /// <remarks>
+        /// Znaczenia parametru select opisane jest w wyliczeniu <see cref="TSPIncludeVertexSelectionMethod"/>.<para/>
+        /// Jeśli algorytm przyrostowy nie znajdzie w badanym grafie cyklu Hamiltona (co oczywiście nie znaczy,
+        /// że taki cykl nie istnieje) to metoda zwraca krotkę (NaN,null).<para/>
+        /// Przy wyborze wstawiania najbliższego i najdalszego wierzchołka metodę można stosować jedynie
+        /// dla grafów nieskierowanych.<para/>
+        /// Przy wyborze wstawiania kolejnego wierzchołka i wstawiania wierzchołka o
+        /// najniższym koszcie wstawiania metodę można stosować dla grafów skierowanych i nieskierowanych.<para/>
+        /// Metodę można stosować dla dla grafów z wagami krawędzi z przedziału &lt;float.MinValue,float.MaxValue&gt;.
+        /// </remarks>
+        /// <seealso cref="AproxTSPGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static (double weight, Edge[] cycle) IncludeTSP(this Graph g, TSPIncludeVertexSelectionMethod select = TSPIncludeVertexSelectionMethod.Sequential)
         {
             if (g.Directed && (select == TSPIncludeVertexSelectionMethod.Nearest || select == TSPIncludeVertexSelectionMethod.Furthest))
@@ -298,6 +362,26 @@ namespace ASD.Graphs
             return !weight.IsNaN() ? (weight, cycle) : (double.NaN, null);
         }
         
+        /// <summary>
+        /// Znajduje rozwiązanie przybliżone problemu komiwojażera algorytmem 3-optymalnym
+        /// </summary>
+        /// <param name="g">Badany graf</param>
+        /// <param name="init">Cykl początkowy</param>
+        /// <returns>Krotka (weight, cycle) składająca się z długości (sumy wag krawędzi) znalezionego cyklu i tablicy krawędzi tworzących ten cykl)</returns>
+        /// <remarks>
+        /// Elementy (krawędzie) umieszczone są w tablicy cycle w kolejności swojego następstwa w znalezionym cyklu Hamiltona.<para/>
+        /// Jeśli algorytm 3-optymalny nie znajdzie w badanym grafie cyklu Hamiltona (co oczywiście nie znaczy, że taki cykl nie istnieje) to metoda zwraca krotkę (NaN,null).<para/>
+        /// Metodę można stosować dla grafów skierowanych i nieskierowanych.<para/>
+        /// Metodę można stosować dla dla grafów z wagami krawędzi z przedziału &lt;float.MinValue,float.MaxValue&gt;.<para/>
+        /// Metoda sprawdza poprawność cyklu początkowego (dopuszcza sztuczne krawędzie),
+        /// nie jest on poprawny lub nie został podany (ma wartość domyślną null),
+        /// to jako cykl początkowy przyjmuje cykl przechodzący przez wierzchołki w kolejności ich numeracji
+        /// (jeśli jakaś krawędź wchodząca w skład takiego "cyklu" nie istnieje przyjmowana
+        /// jest sztuczna krawędź z wagą <see cref="float.MaxValue"/>).<para/>
+        /// Element init[i] zawiera numer wierzchołka do którego przechodzimy z wierzchołka i-tego.
+        /// </remarks>
+        /// <seealso cref="AproxTSPGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static (double weight, Edge[] cycle) ThreeOptTSP(this Graph g, int[] init = null)
         {
             if (g.VerticesCount <= (g.Directed ? 1 : 2))
@@ -435,6 +519,27 @@ namespace ASD.Graphs
             }
         }
         
+        /// <summary>
+        /// Znajduje rozwiązanie przybliżone problemu komiwojażera algorytmem 3-optymalnym
+        /// </summary>
+        /// <param name="g">Badany graf</param>
+        /// <param name="init">Cykl początkowy</param>
+        /// <returns>Krotka (weight, cycle) składająca się z długości (sumy wag krawędzi) znalezionego cyklu i tablicy krawędzi tworzących ten cykl)</returns>
+        /// <remarks>
+        /// Elementy (krawędzie) umieszczone są w tablicy cycle w kolejności swojego następstwa w znalezionym cyklu Hamiltona.<para/>
+        /// Jeśli algorytm 3-optymalny nie znajdzie w badanym grafie cyklu Hamiltona (co oczywiście nie znaczy, że taki cykl nie istnieje) to metoda zwraca krotkę (NaN,null).<para/>
+        /// Metodę można stosować dla grafów skierowanych i nieskierowanych.<para/>
+        /// Metodę można stosować dla dla grafów z wagami krawędzi z przedziału &lt;float.MinValue,float.MaxValue&gt;.<para/>
+        /// Metoda sprawdza poprawność cyklu początkowego (dopuszcza sztuczne krawędzie),
+        /// nie jest on poprawny lub nie został podany (ma wartość domyślną null),
+        /// to jako cykl początkowy przyjmuje cykl przechodzący przez wierzchołki w kolejności ich numeracji
+        /// (jeśli jakaś krawędź wchodząca w skład takiego "cyklu" nie istnieje przyjmowana
+        /// jest sztuczna krawędź z wagą <see cref="float.MaxValue"/>).<para/>
+        /// Element init[i] zawiera numer wierzchołka do którego przechodzimy z wierzchołka i-tego.<para/>
+        /// Metoda wykonuje obliczenia równolegle w wielu wątkach.
+        /// </remarks>
+        /// <seealso cref="AproxTSPGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static (double weight, Edge[] cycle) ThreeOptTSPParallel(this Graph g, int[] init = null)
         {
             Class42 @class = new Class42();
