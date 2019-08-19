@@ -222,144 +222,113 @@ namespace ASD.Graphs
             if (g.VerticesCount <= (g.Directed ? 1 : 2))
                 return (double.NaN, null);
             
-            var linkedList = new LinkedList<Edge>();
-            var hashSet = new HashSet<int>();
-            PriorityQueue<int, double> priorityQueue = null;
-            double[] array = null;
-            linkedList.AddFirst(new Edge(0, 0, ClampDoubleToFloat(double.NaN)));
-            for (var i = 1; i < g.VerticesCount; i++) hashSet.Add(i);
+            var solution = new LinkedList<Edge>();
+            var available = new HashSet<int>();
+            PriorityQueue<int, double> nearest = null;
+            double[] furthest = null;
+            solution.AddFirst(new Edge(0, 0, ClampDoubleToFloat(double.NaN)));
+            for (var i = 1; i < g.VerticesCount; i++) available.Add(i);
             
-            if (select == TSPIncludeVertexSelectionMethod.Nearest)
+            switch (select)
             {
-                bool Cmp(KeyValuePair<int, double> kvp1, KeyValuePair<int, double> kvp2)
-                {
-                    if (kvp1.Value != kvp2.Value)
-                        return kvp1.Value < kvp2.Value;
-                    return kvp1.Key < kvp2.Key;
-                }
-                priorityQueue = new PriorityQueue<int, double>(Cmp, CMonDoSomething.Nothing);
-                for (var i = 1; i < g.VerticesCount; i++) 
-                    priorityQueue.Put(i, ClampDoubleToFloat(double.PositiveInfinity));
-                foreach (var edge in g.OutEdges(0)) 
-                    priorityQueue.ImprovePriority(edge.To, ClampDoubleToFloat(edge.Weight));
+                case TSPIncludeVertexSelectionMethod.Nearest:
+                    bool MinValueOrKey(KeyValuePair<int, double> kvp1, KeyValuePair<int, double> kvp2)
+                    {
+                        if (kvp1.Value != kvp2.Value)
+                            return kvp1.Value < kvp2.Value;
+                        return kvp1.Key < kvp2.Key;
+                    }
+                    nearest = new PriorityQueue<int, double>(MinValueOrKey, CMonDoSomething.Nothing);
+                    for (var i = 1; i < g.VerticesCount; i++)
+                        nearest.Put(i, ClampDoubleToFloat(double.PositiveInfinity));
+                    foreach (var edge in g.OutEdges(0))
+                        nearest.ImprovePriority(edge.To, ClampDoubleToFloat(edge.Weight));
+                    break;
+                case TSPIncludeVertexSelectionMethod.Furthest:
+                    furthest = new double[g.VerticesCount];
+                    for (var i = 1; i < g.VerticesCount; i++)
+                        furthest[i] = ClampDoubleToFloat(double.PositiveInfinity);
+                    foreach (var edge in g.OutEdges(0))
+                        furthest[edge.To] = ClampDoubleToFloat(edge.Weight);
+                    break;
+                case TSPIncludeVertexSelectionMethod.Sequential:
+                    break;
+                case TSPIncludeVertexSelectionMethod.MinimalCost:
+                    break;
+                default:
+                    throw new ArgumentException("Invalid vertex selection method");
             }
-            if (select == TSPIncludeVertexSelectionMethod.Furthest)
+
+            for (var i = 1; i < g.VerticesCount; i++)
             {
-                array = new double[g.VerticesCount];
-                for (var i = 1; i < g.VerticesCount; i++) 
-                    array[i] = ClampDoubleToFloat(double.PositiveInfinity);
-                foreach (var edge in g.OutEdges(0)) 
-                    array[edge.To] = ClampDoubleToFloat(edge.Weight);
-            }
-            var l = 1;
-            while (l < g.VerticesCount)
-            {
-                LinkedListNode<Edge> linkedListNode = null;
-                int num2;
+                LinkedListNode<Edge> edgeNode = null;
+                int currVert;
                 switch (select)
                 {
                     case TSPIncludeVertexSelectionMethod.Sequential:
-                        num2 = l;
+                        currVert = i;
                         break;
                     case TSPIncludeVertexSelectionMethod.Nearest:
-                        {
-                            num2 = priorityQueue.Get();
-                            foreach (var edge in g.OutEdges(num2))
-                            {
-                                if (hashSet.Contains(edge.To))
-                                {
-                                    priorityQueue.ImprovePriority(edge.To, ClampDoubleToFloat(edge.Weight));
-                                }
-                            }
-                            break;
-                            goto IL_36B;
-                        }
+                        currVert = nearest.Get();
+                        foreach (var edge in g.OutEdges(currVert))
+                            if (available.Contains(edge.To))
+                                nearest.ImprovePriority(edge.To, ClampDoubleToFloat(edge.Weight));
+                        break;
                     case TSPIncludeVertexSelectionMethod.Furthest:
-                        goto IL_36B;
+                        var max = double.NegativeInfinity;
+                        currVert = available.First();
+                        foreach (var vert in available)
+                            if (max < furthest[vert])
+                            {
+                                currVert = vert;
+                                max = furthest[vert];
+                            }
+                        foreach (var edge in g.OutEdges(currVert))
+                        {
+                            var w = ClampDoubleToFloat(edge.Weight);
+                            if (furthest[edge.To] > w) furthest[edge.To] = w;
+                        }
+                        break;
                     case TSPIncludeVertexSelectionMethod.MinimalCost:
-                        goto IL_455;
+                        var min = double.PositiveInfinity;
+                        edgeNode = solution.First;
+                        currVert = available.First();
+                        foreach (var vert in available)
+                            for (var k = solution.First; k != null; k = k.Next)
+                            {
+                                var dif = ClampDoubleToFloat(g.GetEdgeWeight(k.Value.From, vert)) +
+                                        ClampDoubleToFloat(g.GetEdgeWeight(vert, k.Value.To)) -
+                                        ClampDoubleToFloat(k.Value.Weight);
+                                if (!(min > dif)) continue;
+                                edgeNode = k;
+                                currVert = vert;
+                                min = dif;
+                            }
+                        break;
                     default:
                         throw new ArgumentException("Invalid vertex selection method");
                 }
-            IL_56D:
-            hashSet.Remove(num2);
-            bool flag12 = linkedListNode != null;
-            double num3;
-            if (!flag12)
-            {
-                num3 = double.PositiveInfinity;
-                linkedListNode = linkedList.First;
-                for (LinkedListNode<Edge> linkedListNode2 = linkedList.First; linkedListNode2 != null; linkedListNode2 = linkedListNode2.Next)
+                
+                available.Remove(currVert);
+                if (edgeNode == null)
                 {
-                    double num4 = ClampDoubleToFloat(g.GetEdgeWeight(linkedListNode2.Value.From, num2));
-                    double edgeWeight = g.GetEdgeWeight(num2, linkedListNode2.Value.To);
-                    double num5 = num4 + ClampDoubleToFloat(edgeWeight) - ClampDoubleToFloat(linkedListNode2.Value.Weight);
-                    if (num3 > num5)
+                    var min = double.PositiveInfinity;
+                    edgeNode = solution.First;
+                    for (var j = solution.First; j != null; j = j.Next)
                     {
-                        linkedListNode = linkedListNode2;
-                        num3 = num5;
+                        var diff = ClampDoubleToFloat(g.GetEdgeWeight(j.Value.From, currVert)) + 
+                                   ClampDoubleToFloat(g.GetEdgeWeight(currVert, j.Value.To)) - 
+                                   ClampDoubleToFloat(j.Value.Weight);
+                        if (!(min > diff)) continue;
+                        edgeNode = j;
+                        min = diff;
                     }
                 }
+                solution.AddBefore(edgeNode, new Edge(edgeNode.Value.From, currVert, g.GetEdgeWeight(edgeNode.Value.From, currVert)));
+                solution.AddBefore(edgeNode, new Edge(currVert, edgeNode.Value.To, g.GetEdgeWeight(currVert, edgeNode.Value.To)));
+                solution.Remove(edgeNode);
             }
-            int to = linkedListNode.Value.To;
-            linkedList.AddBefore(linkedListNode, new Edge(linkedListNode.Value.From, num2, g.GetEdgeWeight(linkedListNode.Value.From, num2)));
-            LinkedList<Edge> linkedList2 = linkedList;
-            LinkedListNode<Edge> node = linkedListNode;
-            int int_ = num2;
-            int int_2 = linkedListNode.Value.To;
-            int from2 = num2;
-            int to2 = linkedListNode.Value.To;
-            linkedList2.AddBefore(node, new Edge(int_, linkedListNode.Value.To, g.GetEdgeWeight(from2, linkedListNode.Value.To)));
-            linkedList.Remove(linkedListNode);
-            l++;
-            continue;
-            IL_36B:
-                num3 = double.NegativeInfinity;
-                num2 = hashSet.First();
-                foreach (int num7 in hashSet)
-                {
-                    if (num3 < array[num7])
-                    {
-                        num2 = num7;
-                        num3 = array[num7];
-                    }
-                }
-                using (IEnumerator<Edge> enumerator = g.OutEdges(num2).GetEnumerator())
-                {
-                    while (enumerator.MoveNext())
-                    {
-                        Edge edge4 = enumerator.Current;
-                        double num5 = ClampDoubleToFloat(edge4.Weight);
-                        if (array[edge4.To] > num5)
-                        {
-                            array[edge4.To] = num5;
-                        }
-                    }
-                    goto IL_56D;
-                }
-            IL_455:
-                double positiveInfinity = double.PositiveInfinity;
-                num3 = positiveInfinity;
-                linkedListNode = linkedList.First;
-                num2 = hashSet.First();
-                foreach (int num8 in hashSet)
-                {
-                    for (LinkedListNode<Edge> linkedListNode3 = linkedList.First; linkedListNode3 != null; linkedListNode3 = linkedListNode3.Next)
-                    {
-                        int from3 = linkedListNode3.Value.From;
-                        int to3 = num8;
-                        double num5 = ClampDoubleToFloat(g.GetEdgeWeight(from3, to3)) + ClampDoubleToFloat(g.GetEdgeWeight(num8, linkedListNode3.Value.To)) - ClampDoubleToFloat(linkedListNode3.Value.Weight);
-                        if (num3 > num5)
-                        {
-                            linkedListNode = linkedListNode3;
-                            num2 = num8;
-                            num3 = num5;
-                        }
-                    }
-                }
-                goto IL_56D;
-            }
-            var cycle = linkedList.ToArray();
+            var cycle = solution.ToArray();
             var weight = 0.0;
             for (var i = 0; i < cycle.Length; i++) 
                 weight += cycle[i].Weight;
