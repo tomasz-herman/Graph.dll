@@ -380,12 +380,9 @@ namespace ASD.Graphs
                         var visited = new bool[g.VerticesCount];
                         int vertCount;
                         var i = init[0];
-                        for (vertCount = 2; vertCount < g.VerticesCount; vertCount++, i = init[i])
-                        {
+                        for (vertCount = 2; vertCount < g.VerticesCount; vertCount++, i = init[i], visited[i] = true)
                             if (init[i] <= 0 || init[i] >= g.VerticesCount || init[i] == i || visited[i])
                                 break;
-                            visited[i] = true;
-                        }
                         if (vertCount == g.VerticesCount && init[i] == 0) useInit = true;
                     }
                 }
@@ -440,7 +437,7 @@ namespace ASD.Graphs
                         weight += cycle[i].Weight;
                     }
                 }
-                return !weight.IsNaN() ? (weight, cycle) : (double.NaN, null);
+                return weight.IsNaN() ? (double.NaN, null) : (weight, cycle);
             }
         }
         
@@ -467,137 +464,100 @@ namespace ASD.Graphs
         /// <seealso cref="ASD.Graphs"/>
         public static (double weight, Edge[] cycle) ThreeOptTSPParallel(this Graph g, int[] init = null)
         {
-            Class42 @class = new Class42();
-            Class42 class2 = @class;
-            class2.g = g;
-            if (class2.g.VerticesCount <= (class2.g.Directed ? 1 : 2))
+            if (g.VerticesCount <= (g.Directed ? 1 : 2))
+                return (double.NaN, null);
+            double weight;
+            if (g.VerticesCount == 2)
             {
-                return new ValueTuple<double, Edge[]>(double.NaN, null);
+                weight = g.GetEdgeWeight(0, 1) + g.GetEdgeWeight(1, 0);
+                if (weight.IsNaN()) return (double.NaN, null);
+                var c = new Edge[2];
+                c[0] = g.OutEdges(0).First();
+                c[1] = g.OutEdges(1).First();
+                return (weight, c);
             }
-            int verticesCount = class2.g.VerticesCount;
-            int num = 2;
-            if (verticesCount == num)
+            
+            int[] tempCycle;
+            var useInit = false;
+            var weights = new double[g.VerticesCount];
+            var newJ = new int[g.VerticesCount];
+            var newK = new int[g.VerticesCount];
+            var differences = new double[g.VerticesCount];
+            
+            void Loop(int i)
             {
-                double num2 = class2.g.GetEdgeWeight(0, 1) + class2.g.GetEdgeWeight(1, 0);
-                if (!num2.IsNaN())
+                differences[i] = 0.0;
+                if (tempCycle[i] == 0)
+                    return;
+                for (var j = tempCycle[i]; tempCycle[j] != 0; j = tempCycle[j])
                 {
-                    double item = num2;
-                    Edge[] array = new Edge[2];
-                    int num3 = 0;
-                    Graph graph_ = class2.g;
-                    array[num3] = graph_.OutEdges(0).First();
-                    array[1] = class2.g.OutEdges(1).First();
-                    return new ValueTuple<double, Edge[]>(item, array);
+                    var w = ClampDoubleToFloat(g.GetEdgeWeight(i, tempCycle[j]));
+                    for (var k = tempCycle[j]; k != 0; k = tempCycle[k])
+                    {
+                        var difference = weights[i] + weights[j] + weights[k] - w - ClampDoubleToFloat(g.GetEdgeWeight(j, tempCycle[k])) - ClampDoubleToFloat(g.GetEdgeWeight(k, tempCycle[i]));
+                        if (!(differences[i] < difference)) continue;
+                        differences[i] = difference;
+                        newJ[i] = j;
+                        newK[i] = k;
+                    }
                 }
-                return new ValueTuple<double, Edge[]>(double.NaN, null);
             }
 
-            class2.init = null;
-            bool flag4 = false;
-            int verticesCount2 = class2.g.VerticesCount;
-            class2.double_1 = new double[verticesCount2];
-            class2.int_1 = new int[verticesCount2];
-            class2.int_2 = new int[verticesCount2];
-            class2.double_0 = new double[verticesCount2];
-            Class42 class3 = class2;
-            Graph graph_2 = class2.g;
-            int i;
-            int j;
-            if (init != null && init.Length == verticesCount2 && init[0] > 0 && init[0] < verticesCount2)
+            if (init != null && init.Length == g.VerticesCount && init[0] > 0 && init[0] < g.VerticesCount)
             {
-                bool[] array2 = new bool[verticesCount2];
-                bool[] array3 = array2;
-                i = 2;
-                j = init[0];
-                while (i < verticesCount2)
-                {
-                    if (init[j] <= 0 || init[j] >= verticesCount2)
-                    {
+                var visited = new bool[g.VerticesCount];
+                int vertCount;
+                var i = init[0];
+                for (vertCount = 2; vertCount < g.VerticesCount; vertCount++, i = init[i], visited[i] = true)
+                    if (init[i] <= 0 || init[i] >= g.VerticesCount || init[i] == i || visited[i])
                         break;
-                    }
-                    int num4 = init[j];
-                    int num5 = j;
-                    if (num4 == num5 || array3[j])
-                    {
-                        break;
-                    }
-                    array3[j] = true;
-                    i++;
-                    j = init[j];
-                }
-                int num6 = i;
-                int num7 = verticesCount2;
-                if (num6 == num7 && init[j] == 0)
-                {
-                    flag4 = true;
-                }
+                if (vertCount == g.VerticesCount && init[i] == 0) useInit = true;
             }
-            if (flag4)
-            {
-                class2.init = (int[])init.Clone();
-            }
+
+            if (useInit)
+                tempCycle = (int[]) init.Clone();
             else
             {
-                class2.init = new int[verticesCount2];
-                for (j = 1; j < verticesCount2; j++)
+                tempCycle = new int[g.VerticesCount];
+                for (var i = 1; i < g.VerticesCount; i++)
                 {
-                    Class42 class4 = class2;
-                    class4.init[j - 1] = j;
+                    tempCycle[i - 1] = i;
                 }
-                class2.init[verticesCount2 - 1] = 0;
+                tempCycle[g.VerticesCount - 1] = 0;
             }
-            double num8;
-            for (; ; )
+
+            while(true)
             {
-                for (j = 0; j < verticesCount2; j++)
+                for (var i = 0; i < g.VerticesCount; i++) weights[i] = ClampDoubleToFloat(g.GetEdgeWeight(i, tempCycle[i]));
+                Parallel.For(0, g.VerticesCount, Loop);
+                var maxDifference = 0.0;
+                var newI = -1;
+                for (var i = 0; i < g.VerticesCount; i++)
                 {
-                    class2.double_1[j] = ClampDoubleToFloat(class2.g.GetEdgeWeight(j, class2.init[j]));
+                    if (!(maxDifference < differences[i])) continue;
+                    maxDifference = differences[i];
+                    newI = i;
                 }
-                Parallel.For(0, verticesCount2, class2.method_0);
-                num8 = 0.0;
-                for (i = 0; i < verticesCount2; i++)
-                {
-                    if (num8 < class2.double_0[i])
-                    {
-                        num8 = class2.double_0[i];
-                        j = i;
-                    }
-                }
-                if (num8 == 0.0)
-                {
+                if (maxDifference == 0.0)
                     break;
+                var temp = tempCycle[newI];
+                tempCycle[newI] = tempCycle[newJ[newI]];
+                tempCycle[newJ[newI]] = tempCycle[newK[newI]];
+                tempCycle[newK[newI]] = temp;
+            }
+            var cycle = new Edge[g.VerticesCount];
+            weight = 0.0;
+            {
+                int i;
+                int j;
+                for (i = 0, j = 0; j < g.VerticesCount; j++, i = tempCycle[i])
+                {
+                    cycle[j] = new Edge(i, tempCycle[i], g.GetEdgeWeight(i, tempCycle[i]));
+                    weight += cycle[j].Weight;
                 }
-                i = class2.init[j];
-                Class42 class5 = class2;
-                class5.init[j] = class2.init[class2.int_1[j]];
-                int[] int_ = class2.init;
-                int num9 = class2.int_1[j];
-                int num10 = class2.init[class2.int_2[j]];
-                int_[num9] = num10;
-                class2.init[class2.int_2[j]] = i;
             }
-            Edge[] array4 = new Edge[verticesCount2];
-            num8 = 0.0;
-            int num11 = 0;
-            j = 0;
-            i = num11;
-            while (i < verticesCount2)
-            {
-                Edge[] array5 = array4;
-                int num12 = i;
-                int int_2 = j;
-                array5[num12] = new Edge(int_2, class2.init[j], class2.g.GetEdgeWeight(j, class2.init[j]));
-                num8 += array4[i].Weight;
-                int num13 = i;
-                int num14 = 1;
-                i = num13 + num14;
-                j = class2.init[j];
-            }
-            if (!num8.IsNaN())
-            {
-                return new ValueTuple<double, Edge[]>(num8, array4);
-            }
-            return new ValueTuple<double, Edge[]>(double.NaN, null);
+            
+            return weight.IsNaN() ? (double.NaN, null) : (weight, cycle);
         }
 
         private static IEnumerable<Edge> PerfectMatching(this Graph g, IReadOnlyList<bool> oddVertices)
@@ -681,54 +641,14 @@ namespace ASD.Graphs
             return matching;
         }
 
-        private static double ClampDoubleToFloat(double double0)
+        private static double ClampDoubleToFloat(double d)
         {
-            if (double0.IsNaN() || double0 > 3.4028234663852886E+38)
+            if (d.IsNaN() || d > 3.4028234663852886E+38)
             {
-                double0 = 3.4028234663852886E+38;
+                d = 3.4028234663852886E+38;
             }
-            return Math.Max(double0, -3.4028234663852886E+38);
+            return Math.Max(d, -3.4028234663852886E+38);
         }
         
-        [CompilerGenerated]
-        private sealed class Class42
-        {
-            internal void method_0(int int_3)
-            {
-                double_0[int_3] = 0.0;
-                if (init[int_3] == 0)
-                {
-                    return;
-                }
-                int num = init[int_3];
-                while (init[num] != 0)
-                {
-                    double num2 = ClampDoubleToFloat(g.GetEdgeWeight(int_3, init[num]));
-                    for (int num3 = init[num]; num3 != 0; num3 = init[num3])
-                    {
-                        double num4 = double_1[int_3] + double_1[num] + double_1[num3] - num2 - ClampDoubleToFloat(g.GetEdgeWeight(num, init[num3])) - ClampDoubleToFloat(g.GetEdgeWeight(num3, init[int_3]));
-                        if (double_0[int_3] < num4)
-                        {
-                            double_0[int_3] = num4;
-                            int_1[int_3] = num;
-                            int_2[int_3] = num3;
-                        }
-                    }
-                    num = init[num];
-                }
-            }
-
-            public double[] double_0;
-
-            public int[] init;
-
-            public Graph g;
-
-            public double[] double_1;
-
-            public int[] int_1;
-
-            public int[] int_2;
-        }
     }
 }
