@@ -371,122 +371,74 @@ namespace ASD.Graphs
             }
             else
             {
-                bool flag4 = false;
-                int verticesCount = g.VerticesCount;
-                double[] array = new double[verticesCount];
-                int i;
-                int j;
+                var useInit = false;
+                var weights = new double[g.VerticesCount];
                 if (init != null)
                 {
-                    int num2 = init.Length;
-                    int num3 = verticesCount;
-                    if (num2 == num3 && init[0] > 0 && init[0] < verticesCount)
+                    if (init.Length == g.VerticesCount && init[0] > 0 && init[0] < g.VerticesCount)
                     {
-                        bool[] array2 = new bool[verticesCount];
-                        i = 2;
-                        j = init[0];
-                        while (i < verticesCount)
+                        var visited = new bool[g.VerticesCount];
+                        int vertCount;
+                        var i = init[0];
+                        for (vertCount = 2; vertCount < g.VerticesCount; vertCount++, i = init[i])
                         {
-                            if (init[j] <= 0 || init[j] >= verticesCount || init[j] == j || array2[j])
-                            {
+                            if (init[i] <= 0 || init[i] >= g.VerticesCount || init[i] == i || visited[i])
                                 break;
-                            }
-                            array2[j] = true;
-                            int num4 = i;
-                            i = num4 + 1;
-                            j = init[j];
+                            visited[i] = true;
                         }
-                        if (i == verticesCount && init[j] == 0)
-                        {
-                            flag4 = true;
-                        }
+                        if (vertCount == g.VerticesCount && init[i] == 0) useInit = true;
                     }
                 }
-                int[] array3;
-                if (flag4)
-                {
-                    array3 = (int[])init.Clone();
-                }
+                int[] tempCycle;
+                if (useInit)
+                    tempCycle = (int[]) init.Clone();
                 else
                 {
-                    array3 = new int[verticesCount];
-                    for (j = 1; j < verticesCount; j++)
-                    {
-                        array3[j - 1] = j;
-                    }
-                    array3[verticesCount - 1] = 0;
+                    tempCycle = new int[g.VerticesCount];
+                    for (var i = 1; i < g.VerticesCount; i++) tempCycle[i - 1] = i;
+                    tempCycle[g.VerticesCount - 1] = 0;
                 }
-                int num5 = -1;
-                int num6 = -1;
-                int num7 = -1;
-                int num8 = num5;
+                var newK = -1;
+                var newJ = -1;
+                var newI = -1;
                 double weight;
-                for (; ; )
+                while (true)
                 {
-                    double num9 = 0.0;
-                    for (j = 0; j < verticesCount; j++)
+                    var maxDifference = 0.0;
+                    for (var i = 0; i < g.VerticesCount; i++) weights[i] = ClampDoubleToFloat(g.GetEdgeWeight(i, tempCycle[i]));
+                    for (var i = 0; i < g.VerticesCount; i++)
                     {
-                        double[] array4 = array;
-                        int num10 = j;
-                        array4[num10] = ClampDoubleToFloat(g.GetEdgeWeight(j, array3[j]));
-                    }
-                    for (j = 0; j < verticesCount; j++)
-                    {
-                        if (array3[j] != 0)
+                        if (tempCycle[i] == 0) continue;
+                        for (var j = tempCycle[i]; 0 != tempCycle[j]; j = tempCycle[j])
                         {
-                            int[] array5 = array3;
-                            int num11 = j;
-                            int num12 = array5[num11];
-                            for (; ; )
+                            weight = ClampDoubleToFloat(g.GetEdgeWeight(i, tempCycle[j]));
+                            for (var k = tempCycle[j]; k != 0; k = tempCycle[k])
                             {
-                                int[] array6 = array3;
-                                int num13 = num12;
-                                if (array6[num13] == 0)
-                                {
-                                    break;
-                                }
-                                weight = ClampDoubleToFloat(g.GetEdgeWeight(j, array3[num12]));
-                                for (i = array3[num12]; i != 0; i = array3[i])
-                                {
-                                    double num15 = array[j] + array[num12];
-                                    double num16 = num15 + array[i] - weight - ClampDoubleToFloat(g.GetEdgeWeight(num12, array3[i])) - ClampDoubleToFloat(g.GetEdgeWeight(i, array3[j]));
-                                    if (num9 < num16)
-                                    {
-                                        num9 = num16;
-                                        num8 = j;
-                                        num7 = num12;
-                                        num6 = i;
-                                    }
-                                }
-                                num12 = array3[num12];
+                                var difference = weights[i] + weights[j] + weights[k] - weight - ClampDoubleToFloat(g.GetEdgeWeight(j, tempCycle[k])) - ClampDoubleToFloat(g.GetEdgeWeight(k, tempCycle[i]));
+                                if (!(maxDifference < difference)) continue;
+                                maxDifference = difference;
+                                newI = i;
+                                newJ = j;
+                                newK = k;
                             }
                         }
                     }
-                    if (num9 == 0.0)
-                    {
+                    if (maxDifference == 0.0)
                         break;
-                    }
-                    j = array3[num8];
-                    array3[num8] = array3[num7];
-                    int[] array7 = array3;
-                    array7[num7] = array3[num6];
-                    array3[num6] = j;
+                    var temp = tempCycle[newI];
+                    tempCycle[newI] = tempCycle[newJ];
+                    tempCycle[newJ] = tempCycle[newK];
+                    tempCycle[newK] = temp;
                 }
-                Edge[] cycle = new Edge[verticesCount];
-                weight = 0.0;
-                int num17 = 0;
-                j = 0;
-                i = num17;
-                while (i < verticesCount)
+                var cycle = new Edge[g.VerticesCount];
                 {
-                    Edge[] array9 = cycle;
-                    int num18 = i;
-                    int int_ = j;
-                    array9[num18] = new Edge(int_, array3[j], g.GetEdgeWeight(j, array3[j]));
-                    weight += cycle[i].Weight;
-                    i++;
-                    int[] array10 = array3;
-                    j = array10[j];
+                    int i;
+                    int j;
+                    for (i = 0, j = 0, weight = 0; i < g.VerticesCount; i++, j = tempCycle[j])
+                    {
+                        cycle[i] = new Edge(j, tempCycle[j], g.GetEdgeWeight(j, tempCycle[j]));
+                        weight += cycle[i].Weight;
+                    }
                 }
                 return !weight.IsNaN() ? (weight, cycle) : (double.NaN, null);
             }
