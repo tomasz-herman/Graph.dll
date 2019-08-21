@@ -82,15 +82,15 @@ namespace ASD.Graphs
                 for (var j = 0; j < verticesCount; j++) tab[j, i] -= min;
             }
             
-            var class44 = new BranchAndBoundHelper(g, multiThread);
-            var struct8 = new State(tab, new Edge[g.VerticesCount]);
+            var branchAndBoundHelper = new BranchAndBoundHelper(g, multiThread);
+            var state = new State(tab, new Edge[g.VerticesCount]);
 
             if (multiThread)
-                class44.BranchAndBoundMultiThread(struct8);
+                branchAndBoundHelper.BranchAndBoundMultiThread(state);
             else
-                class44.BranchAndBoundSingleThread(struct8);
+                branchAndBoundHelper.BranchAndBoundSingleThread(state);
             
-            return double.IsPositiveInfinity(class44.bestWeight) ? (double.NaN, null) : (weight: class44.bestWeight, class44.GetCycle());
+            return double.IsPositiveInfinity(branchAndBoundHelper.bestWeight) ? (double.NaN, null) : (branchAndBoundHelper.bestWeight, branchAndBoundHelper.GetCycle());
         }
 
         private struct State
@@ -255,10 +255,10 @@ namespace ASD.Graphs
             private State SolveProblem(State state, int ii, int jj, double[,] tab)
             {
                 var problemSize = state.tab.GetLength(0) - 1;
-                var array = new bool[problemSize - 1];
-                var array2 = new bool[problemSize - 1];
-                var array3 = new bool[problemSize - 1];
-                var array4 = new bool[problemSize - 1];
+                var naNColumns = new bool[problemSize - 1];
+                var naNRows = new bool[problemSize - 1];
+                var zeroColumns = new bool[problemSize - 1];
+                var zeroRows = new bool[problemSize - 1];
                 var m = 0;
                 var i = 0;
                 int j;
@@ -281,13 +281,13 @@ namespace ASD.Graphs
                                 {
                                     if (tab[i, j] == 0.0)
                                     {
-                                        array4[j] = true;
-                                        array3[i] = true;
+                                        zeroRows[j] = true;
+                                        zeroColumns[i] = true;
                                     }
                                     if (tab[i, j].IsNaN())
                                     {
-                                        array2[j] = true;
-                                        array[i] = true;
+                                        naNRows[j] = true;
+                                        naNColumns[i] = true;
                                     }
                                 }
                             }
@@ -299,23 +299,23 @@ namespace ASD.Graphs
                     i++;
                 }
                 i = 0;
-                while (i < problemSize - 1 && array[i]) i++;
+                while (i < problemSize - 1 && naNColumns[i]) i++;
                 j = 0;
-                while (j < problemSize - 1 && array2[j]) j++;
+                while (j < problemSize - 1 && naNRows[j]) j++;
                 if (tab[i, j] == 0.0)
                 {
-                    array4[j] = false;
-                    array3[i] = false;
+                    zeroRows[j] = false;
+                    zeroColumns[i] = false;
                 }
                 tab[i, j] = double.NaN;
                 var from = (int)state.tab[ii, problemSize];
                 var to = (int)state.tab[problemSize, jj];
                 state.edges[problemSize - 1] = new Edge(from, to, g.GetEdgeWeight(from, to));
                 for (var c = 0; c < problemSize - 1; c++)
-                    if (!array3[c])
+                    if (!zeroColumns[c])
                         ProcessColumn(tab, c);
                 for (var r = 0; r < problemSize - 1; r++)
-                    if (!array4[r])
+                    if (!zeroRows[r])
                         ProcessRow(tab, r);
                 return new State(tab, state.edges);
             }
@@ -323,17 +323,17 @@ namespace ASD.Graphs
             private static (double m, int i, int j) FindBestLimit(double[,] tab)
             {
                 var problemSize = tab.GetLength(0) - 1;
-                bool[] chosenColumns = new bool[problemSize];
-                bool[] chosenRows = new bool[problemSize];
-                double[] array3 = new double[problemSize];
-                double[] array4 = new double[problemSize];
-                double mm = -1.0;
-                int jj = -1;
-                int ii = -1;
+                var chosenColumns = new bool[problemSize];
+                var chosenRows = new bool[problemSize];
+                var lowestWeightsColumn = new double[problemSize];
+                var lowestWeightsRow = new double[problemSize];
+                var mm = -1.0;
+                var jj = -1;
+                var ii = -1;
                 for (var i = 0; i < problemSize; i++)
                 {
-                    array4[i] = double.PositiveInfinity;
-                    array3[i] = float.PositiveInfinity;
+                    lowestWeightsRow[i] = double.PositiveInfinity;
+                    lowestWeightsColumn[i] = float.PositiveInfinity;
                 }
                 for (var i = 0; i < problemSize; i++)
                 {
@@ -345,9 +345,9 @@ namespace ASD.Graphs
                             {
                                 for (var k = j + 1; k < problemSize; k++)
                                 {
-                                    if (!(array3[i] > tab[i, k])) continue;
-                                    array3[i] = tab[i, k];
-                                    if (array3[i] == 0.0)
+                                    if (!(lowestWeightsColumn[i] > tab[i, k])) continue;
+                                    lowestWeightsColumn[i] = tab[i, k];
+                                    if (lowestWeightsColumn[i] == 0.0)
                                         break;
                                 }
                                 chosenColumns[i] = true;
@@ -356,24 +356,24 @@ namespace ASD.Graphs
                             {
                                 for (var k = i + 1; k < problemSize; k++)
                                 {
-                                    if (!(array4[j] > tab[k, j])) continue;
-                                    array4[j] = tab[k, j];
-                                    if (array4[j] == 0.0)
+                                    if (!(lowestWeightsRow[j] > tab[k, j])) continue;
+                                    lowestWeightsRow[j] = tab[k, j];
+                                    if (lowestWeightsRow[j] == 0.0)
                                         break;
                                 }
                                 chosenRows[j] = true;
                             }
 
-                            if (!(mm < array3[i] + array4[j])) continue;
-                            mm = array3[i] + array4[j];
+                            if (!(mm < lowestWeightsColumn[i] + lowestWeightsRow[j])) continue;
+                            mm = lowestWeightsColumn[i] + lowestWeightsRow[j];
                             ii = i;
                             jj = j;
                         }
                         else
                         {
-                            var num6 = tab[i, j];
-                            if (array3[i] > num6) array3[i] = num6;
-                            if (array4[j] > num6) array4[j] = num6;
+                            var weight = tab[i, j];
+                            if (lowestWeightsColumn[i] > weight) lowestWeightsColumn[i] = weight;
+                            if (lowestWeightsRow[j] > weight) lowestWeightsRow[j] = weight;
                         }
                     }
                     if (!chosenColumns[i])
