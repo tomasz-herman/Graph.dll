@@ -82,15 +82,15 @@ namespace ASD.Graphs
                 for (var j = 0; j < verticesCount; j++) tab[j, i] -= min;
             }
             
-            var class44 = new BreachAndBoundHelper(g, multiThread);
+            var class44 = new BranchAndBoundHelper(g, multiThread);
             var struct8 = new State(tab, new Edge[g.VerticesCount]);
 
             if (multiThread)
-                class44.BreachAndBoundMultiThread(struct8);
+                class44.BranchAndBoundMultiThread(struct8);
             else
-                class44.BreachAndBoundSingleThread(struct8);
+                class44.BranchAndBoundSingleThread(struct8);
             
-            return double.IsPositiveInfinity(class44.weight) ? (double.NaN, null) : (class44.weight, class44.GetCycle());
+            return double.IsPositiveInfinity(class44.bestWeight) ? (double.NaN, null) : (weight: class44.bestWeight, class44.GetCycle());
         }
 
         private struct State
@@ -106,9 +106,9 @@ namespace ASD.Graphs
             
         }
 
-        private sealed class BreachAndBoundHelper
+        private sealed class BranchAndBoundHelper
         {
-            internal double weight;
+            internal double bestWeight;
 
             [ThreadStatic]
             private static double[][,] tabs;
@@ -117,23 +117,23 @@ namespace ASD.Graphs
 
             private Edge[] edges;
 
-            private int int_0;
+            private int processors;
 
-            private ConcurrentStack<State> concurrentStack_0;
+            private ConcurrentStack<State> stack;
 
-            private volatile int int_1;
+            private volatile int resourcesUsed;
 
             private readonly object mutex = new object();
 
-            private Exception exceptionallyBadNameForAnException;
+            private Exception exception;
             
-            internal BreachAndBoundHelper(Graph g, bool multiThread)
+            internal BranchAndBoundHelper(Graph g, bool multiThread)
             {
                 this.g = g;
-                weight = double.PositiveInfinity;
+                bestWeight = double.PositiveInfinity;
                 if (multiThread)
                 {
-                    concurrentStack_0 = new ConcurrentStack<State>();
+                    stack = new ConcurrentStack<State>();
                     return;
                 }
                 tabs = new double[g.VerticesCount + 1][,];
@@ -157,210 +157,167 @@ namespace ASD.Graphs
                 return cycle;
             }
 
-            internal void BreachAndBoundMultiThread(State state0)
+            internal void BranchAndBoundMultiThread(State state)
             {
-                int_0 = Environment.ProcessorCount;
-                concurrentStack_0.Push(state0);
-                int_1 = int_0 + 1;
-                Thread[] array = new Thread[int_0];
-                for (int i = 0; i < array.Length; i++)
+                processors = Environment.ProcessorCount;
+                stack.Push(state);
+                resourcesUsed = processors + 1;
+                var threads = new Thread[processors];
+                for (var i = 0; i < threads.Length; i++)
                 {
-                    array[i] = new Thread(method_2, 0);
-                    array[i].Start();
+                    threads[i] = new Thread(SolveThread, 0);
+                    threads[i].Start();
                 }
-                for (int j = 0; j < array.Length; j++)
-                {
-                    array[j].Join();
-                }
-                if (exceptionallyBadNameForAnException != null)
-                {
-                    throw exceptionallyBadNameForAnException;
-                }
+                foreach (var thread in threads) thread.Join();
+                if (exception == null) return;
+                Console.WriteLine("Download more ram. Idk");
+                throw exception;
             }
 
-            private void method_2()
+            private void SolveThread()
             {
                 var flag = true;
                 try
                 {
                     State state = default;
-                    int problemSize = g.VerticesCount;
-                    int num2 = g.VerticesCount - int_0;
-                    if (num2 < 45) num2 = 45;
-                    int num3 = 6 * int_0;
+                    var problemSizeThreshold = g.VerticesCount - processors;
+                    if (problemSizeThreshold < 45) problemSizeThreshold = 45;
+                    var resourcesUsedThreshold = 6 * processors;
                     tabs = new double[g.VerticesCount][,];
                     for (var i = 2; i < g.VerticesCount; i++) tabs[i] = new double[i, i];
                     while (true)
                     {
                         if (flag)
                         {
-                            Interlocked.Decrement(ref int_1);
-                            while (!concurrentStack_0.TryPop(out state))
+                            Interlocked.Decrement(ref resourcesUsed);
+                            while (!stack.TryPop(out state))
                             {
-                                if (int_1 == 0)
+                                if (resourcesUsed == 0)
                                     return;
                                 Thread.Sleep(10);
                             }
                         }
                         flag = true;
-                        problemSize = state.tab.GetLength(0) - 1;
-                        if (!(state.tab[problemSize, problemSize] < weight)) continue;
+                        var problemSize = state.tab.GetLength(0) - 1;
+                        if (!(state.tab[problemSize, problemSize] < bestWeight)) continue;
                         if (problemSize == 2)
                             SolveElementaryProblem(state);
                         else
                         {
-                            ValueTuple<double, int, int> valueTuple = FindBestLimit(state.tab);
-                            double item = valueTuple.Item1;
-                            int item2 = valueTuple.Item2;
-                            int item3 = valueTuple.Item3;
-                            if (item >= 0.0)
+                            var (m, i, j) = FindBestLimit(state.tab);
+                            if (!(m >= 0.0)) continue;
+                            var nextState = SolveProblem(state, i, j, new double[problemSize, problemSize]);
+                            if (state.tab[problemSize, problemSize] + m < bestWeight)
                             {
-                                State struct2 = SolveProblem(state, item2, item3, new double[problemSize, problemSize]);
-                                if (state.tab[problemSize, problemSize] + item < weight)
-                                {
-                                    state.tab[item2, item3] = double.PositiveInfinity;
-                                    if (smethod_0(state.tab, item2) && smethod_1(state.tab, item3))
-                                    {
-                                        concurrentStack_0.Push(new State(state.tab, (Edge[])state.edges.Clone()));
-                                    }
-                                    Interlocked.Increment(ref int_1);
-                                }
-                                if (problemSize >= num2 && int_1 <= num3)
-                                {
-                                    state = struct2;
-                                    flag = false;
-                                }
-                                else
-                                {
-                                    BreachAndBoundSingleThread(struct2);
-                                }
+                                state.tab[i, j] = double.PositiveInfinity;
+                                if (ProcessColumn(state.tab, i) && ProcessRow(state.tab, j))
+                                    stack.Push(new State(state.tab, (Edge[]) state.edges.Clone()));
+                                Interlocked.Increment(ref resourcesUsed);
                             }
+                            if (problemSize >= problemSizeThreshold && resourcesUsed <= resourcesUsedThreshold)
+                            {
+                                state = nextState;
+                                flag = false;
+                            }
+                            else
+                                BranchAndBoundSingleThread(nextState);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    if (exceptionallyBadNameForAnException == null)
-                    {
-                        exceptionallyBadNameForAnException = ex;
-                    }
-                    Interlocked.Decrement(ref int_1);
+                    if (exception == null) exception = ex;
+                    Interlocked.Decrement(ref resourcesUsed);
                 }
             }
 
-            internal void BreachAndBoundSingleThread(State state)
+            internal void BranchAndBoundSingleThread(State state)
             {
                 var problemSize = state.tab.GetLength(0) - 1;
                 while (true)
                 {
-                    if (state.tab[problemSize, problemSize] >= weight)
+                    if (state.tab[problemSize, problemSize] >= bestWeight)
                         return;
                     if (problemSize == 2)
                         break;
                     var (m, i, j) = FindBestLimit(state.tab);
                     if (m < 0.0)
                         return;
-                    BreachAndBoundSingleThread(SolveProblem(state, i, j, tabs[problemSize]));
-                    if (state.tab[problemSize, problemSize] + m >= weight)
+                    BranchAndBoundSingleThread(SolveProblem(state, i, j, tabs[problemSize]));
+                    if (state.tab[problemSize, problemSize] + m >= bestWeight)
                         return;
                     state.tab[i, j] = double.PositiveInfinity;
-                    if (smethod_0(state.tab, i)) smethod_1(state.tab, j);
+                    if (ProcessColumn(state.tab, i)) ProcessRow(state.tab, j);
                 }
                 SolveElementaryProblem(state);
             }
 
-            private State SolveProblem(State state0, int int_2, int int_3, double[,] double_2)
+            private State SolveProblem(State state, int ii, int jj, double[,] tab)
             {
-                int num = state0.tab.GetLength(0) - 1;
-                bool[] array = new bool[num - 1];
-                bool[] array2 = new bool[num - 1];
-                bool[] array3 = new bool[num - 1];
-                bool[] array4 = new bool[num - 1];
-                int num2 = 0;
-                int i = 0;
-                int j = num2;
-                int l;
-                while (i <= num)
+                var problemSize = state.tab.GetLength(0) - 1;
+                var array = new bool[problemSize - 1];
+                var array2 = new bool[problemSize - 1];
+                var array3 = new bool[problemSize - 1];
+                var array4 = new bool[problemSize - 1];
+                var m = 0;
+                var i = 0;
+                int j;
+                while (m <= problemSize)
                 {
-                    if (i == int_2)
-                    {
-                        j--;
-                    }
+                    if (m == ii)
+                        i--;
                     else
                     {
-                        int num3 = 0;
-                        int k = 0;
-                        l = num3;
-                        while (k <= num)
+                        var n = 0;
+                        j = 0;
+                        while (n <= problemSize)
                         {
-                            if (k == int_3)
-                            {
-                                l--;
-                            }
+                            if (n == jj)
+                                j--;
                             else
                             {
-                                double_2[j, l] = state0.tab[i, k];
-                                if (i != num && k != num)
+                                tab[i, j] = state.tab[m, n];
+                                if (m != problemSize && n != problemSize)
                                 {
-                                    if (double_2[j, l] == 0.0)
+                                    if (tab[i, j] == 0.0)
                                     {
-                                        bool[] array5 = array3;
-                                        int num4 = j;
-                                        array4[l] = true;
-                                        array5[num4] = true;
+                                        array4[j] = true;
+                                        array3[i] = true;
                                     }
-                                    if (double_2[j, l].IsNaN())
+                                    if (tab[i, j].IsNaN())
                                     {
-                                        bool[] array6 = array;
-                                        int num5 = j;
-                                        array2[l] = true;
-                                        array6[num5] = true;
+                                        array2[j] = true;
+                                        array[i] = true;
                                     }
                                 }
                             }
-                            k++;
-                            l++;
+                            n++;
+                            j++;
                         }
                     }
+                    m++;
                     i++;
-                    j++;
                 }
+                i = 0;
+                while (i < problemSize - 1 && array[i]) i++;
                 j = 0;
-                while (j < num - 1 && array[j])
+                while (j < problemSize - 1 && array2[j]) j++;
+                if (tab[i, j] == 0.0)
                 {
-                    j++;
+                    array4[j] = false;
+                    array3[i] = false;
                 }
-                l = 0;
-                while (l < num - 1 && array2[l])
-                {
-                    l++;
-                }
-                if (double_2[j, l] == 0.0)
-                {
-                    bool[] array7 = array3;
-                    int num6 = j;
-                    array4[l] = false;
-                    array7[num6] = false;
-                }
-                double_2[j, l] = double.NaN;
-                int from = (int)state0.tab[int_2, num];
-                int to = (int)state0.tab[num, int_3];
-                state0.edges[num - 1] = new Edge(from, to, g.GetEdgeWeight(from, to));
-                for (j = 0; j < num - 1; j++)
-                {
-                    if (!array3[j])
-                    {
-                        smethod_0(double_2, j);
-                    }
-                }
-                for (l = 0; l < num - 1; l++)
-                {
-                    if (!array4[l])
-                    {
-                        smethod_1(double_2, l);
-                    }
-                }
-                return new State(double_2, state0.edges);
+                tab[i, j] = double.NaN;
+                var from = (int)state.tab[ii, problemSize];
+                var to = (int)state.tab[problemSize, jj];
+                state.edges[problemSize - 1] = new Edge(from, to, g.GetEdgeWeight(from, to));
+                for (var c = 0; c < problemSize - 1; c++)
+                    if (!array3[c])
+                        ProcessColumn(tab, c);
+                for (var r = 0; r < problemSize - 1; r++)
+                    if (!array4[r])
+                        ProcessRow(tab, r);
+                return new State(tab, state.edges);
             }
 
             private static (double m, int i, int j) FindBestLimit(double[,] tab)
@@ -428,61 +385,61 @@ namespace ASD.Graphs
                 return (mm, ii, jj);
             }
 
-            private static bool smethod_0(double[,] matrix, int i)
+            private static bool ProcessColumn(double[,] tab, int i)
             {
-                var length = matrix.GetLength(0) - 1;
+                var problemSize = tab.GetLength(0) - 1;
                 var min = double.PositiveInfinity;
-                for (var j = 0; j < length; j++)
+                for (var j = 0; j < problemSize; j++)
                 {
-                    if (!(min > matrix[i, j])) continue;
-                    min = matrix[i, j];
+                    if (!(min > tab[i, j])) continue;
+                    min = tab[i, j];
                     if (min == 0.0)
                         break;
                 }
                 if (double.IsPositiveInfinity(min))
                 {
-                    matrix[length, length] = double.PositiveInfinity;
+                    tab[problemSize, problemSize] = double.PositiveInfinity;
                     return false;
                 }
 
                 if (min <= 0.0) return true;
                 {
-                    matrix[length, length] += min;
-                    for (var j = 0; j < length; j++) 
-                        matrix[i, j] -= min;
+                    tab[problemSize, problemSize] += min;
+                    for (var j = 0; j < problemSize; j++) 
+                        tab[i, j] -= min;
                 }
                 return true;
             }
 
-            private static bool smethod_1(double[,] matrix, int j)
+            private static bool ProcessRow(double[,] tab, int j)
             {
-                var length = matrix.GetLength(0) - 1;
+                var problemSize = tab.GetLength(0) - 1;
                 var min = double.PositiveInfinity;
-                for (int i = 0; i < length; i++)
+                for (var i = 0; i < problemSize; i++)
                 {
-                    if (!(min > matrix[i, j])) continue;
-                    min = matrix[i, j];
+                    if (!(min > tab[i, j])) continue;
+                    min = tab[i, j];
                     if (min == 0.0)
                         break;
                 }
                 if (double.IsPositiveInfinity(min))
                 {
-                    matrix[length, length] = double.PositiveInfinity;
+                    tab[problemSize, problemSize] = double.PositiveInfinity;
                     return false;
                 }
 
                 if (min <= 0.0) return true;
                 {
-                    matrix[length, length] += min;
-                    for (var i = 0; i < length; i++) 
-                        matrix[i, j] -= min;
+                    tab[problemSize, problemSize] += min;
+                    for (var i = 0; i < problemSize; i++) 
+                        tab[i, j] -= min;
                 }
                 return true;
             }
 
             private void SolveElementaryProblem(State state)
             {
-                if (state.tab[2, 2] >= weight)
+                if (state.tab[2, 2] >= bestWeight)
                 {
                     return;
                 }
@@ -506,8 +463,8 @@ namespace ASD.Graphs
                 }
                 lock (mutex)
                 {
-                    if (!(state.tab[2, 2] < weight)) return;
-                    weight = state.tab[2, 2];
+                    if (!(state.tab[2, 2] < bestWeight)) return;
+                    bestWeight = state.tab[2, 2];
                     edges = (Edge[])state.edges.Clone();
                 }
             }
