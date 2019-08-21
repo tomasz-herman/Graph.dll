@@ -7,6 +7,7 @@ namespace ASD.Graphs
     /// Graf reprezentowany za pomocą list sąsiedztwa (list incydencji)
     /// </summary>
     /// <typeparam name="TAdjacencyList">Typ implementujący listy incydencji</typeparam>
+    /// <seealso cref="Graph"/>
     /// <seealso cref="ASD.Graphs"/>
     [Serializable]
     public sealed class AdjacencyListsGraph<TAdjacencyList> : Graph where TAdjacencyList : IAdjacencyList, new()
@@ -19,11 +20,9 @@ namespace ASD.Graphs
         /// </summary>
         /// <param name="directed">Informacja czy graf jest skierowany</param>
         /// <param name="vertCount">Liczba wierzchołków grafu</param>
-        /// <remarks>Wynikowy graf jest reprezentowany za pomocą list sąsiedztwa (incydencji),
-        /// źródłowy graf g może być reprezentowany w inny sposób. Może więc nastąpić zmiana sposobu reprezentacji grafu.
-        /// </remarks>
         /// <seealso cref="AdjacencyListsGraph{TAdjacencyList}(Graph)"/>
         /// <seealso cref="AdjacencyListsGraph{TAdjacencyList}"/>
+        /// <seealso cref="Graph"/>
         /// <seealso cref="ASD.Graphs"/>
         public AdjacencyListsGraph(bool directed, int vertCount):base(directed, vertCount)
         {
@@ -45,6 +44,7 @@ namespace ASD.Graphs
         /// </remarks>
         /// <seealso cref="AdjacencyListsGraph{TAdjacencyList}(bool,int)"/>
         /// <seealso cref="AdjacencyListsGraph{TAdjacencyList}"/>
+        /// <seealso cref="Graph"/>
         /// <seealso cref="ASD.Graphs"/>
         public AdjacencyListsGraph(Graph g) : this(g.Directed, g.VerticesCount)
         {
@@ -57,6 +57,7 @@ namespace ASD.Graphs
         /// <returns>Utworzona kopia grafu</returns>
         /// <remarks>Tworzony graf jest takiego samego typu jak bieżący, metoda to "wirtualny konstruktor".</remarks>
         /// <seealso cref="AdjacencyListsGraph{TAdjacencyList}"/>
+        /// <seealso cref="Graph"/>
         /// <seealso cref="ASD.Graphs"/>
         public override Graph Clone()
         {
@@ -70,6 +71,7 @@ namespace ASD.Graphs
         /// <remarks>Tworzony graf jest takiego samego typu jak bieżący, metoda to "wirtualny konstruktor".</remarks>
         /// <seealso cref="IsolatedVerticesGraph(bool, int)"/>
         /// <seealso cref="AdjacencyListsGraph{TAdjacencyList}"/>
+        /// <seealso cref="Graph"/>
         /// <seealso cref="ASD.Graphs"/>
         public override Graph IsolatedVerticesGraph()
         {
@@ -85,6 +87,7 @@ namespace ASD.Graphs
         /// <remarks>Tworzony graf jest takiego samego typu jak bieżący, metoda to "wirtualny konstruktor".</remarks>
         /// <seealso cref="IsolatedVerticesGraph()"/>
         /// <seealso cref="AdjacencyListsGraph{TAdjacencyList}"/>
+        /// <seealso cref="Graph"/>
         /// <seealso cref="ASD.Graphs"/>
         public override Graph IsolatedVerticesGraph(bool directed, int verticesCount)
         {
@@ -106,6 +109,7 @@ namespace ASD.Graphs
         /// </remarks>
         /// <seealso cref="Graph.AddEdge(Edge)"/>
         /// <seealso cref="AdjacencyListsGraph{TAdjacencyList}"/>
+        /// <seealso cref="Graph"/>
         /// <seealso cref="ASD.Graphs"/>
         public override bool AddEdge(int from, int to, double weight = 1.0)
         {
@@ -139,6 +143,7 @@ namespace ASD.Graphs
         /// </remarks>
         /// <seealso cref="Graph.DelEdge(Edge)"/>
         /// <seealso cref="AdjacencyListsGraph{TAdjacencyList}"/>
+        /// <seealso cref="Graph"/>
         /// <seealso cref="ASD.Graphs"/>
         public override bool DelEdge(int from, int to)
         {
@@ -168,6 +173,7 @@ namespace ASD.Graphs
         /// Do zbadania wszystkich krawędzi wychodzących z danego wierzchołka należy używać metody OutEdges.
         /// </remarks>
         /// <seealso cref="AdjacencyListsGraph{TAdjacencyList}"/>
+        /// <seealso cref="Graph"/>
         /// <seealso cref="ASD.Graphs"/>
         public override double GetEdgeWeight(int from, int to)
         {
@@ -187,6 +193,7 @@ namespace ASD.Graphs
         /// Do sprawdzenia czy metoda zwróciła NaN należy używać metody <see cref="GraphHelperExtender.IsNaN"/>, użycie operatora == spowoduje błędną odpowiedź (zawsze false).
         /// </remarks>
         /// <seealso cref="AdjacencyListsGraph{TAdjacencyList}"/>
+        /// <seealso cref="Graph"/>
         /// <seealso cref="ASD.Graphs"/>
         public override double ModifyEdgeWeight(int from, int to, double add)
         {
@@ -213,6 +220,7 @@ namespace ASD.Graphs
         /// Metoda w rzeczywistości zwraca tablicę krawędzi wychodzącyh z danego wierzchołka.
         /// </remarks>
         /// <seealso cref="AdjacencyListsGraph{TAdjacencyList}"/>
+        /// <seealso cref="Graph"/>
         /// <seealso cref="ASD.Graphs"/>
         public override IEnumerable<Edge> OutEdges(int from)
         {

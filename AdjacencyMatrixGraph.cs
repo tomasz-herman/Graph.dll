@@ -7,6 +7,7 @@ namespace ASD.Graphs
     /// <summary>
     /// Graf o reprezentowany za pomocą macierzy sąsiedztwa
     /// </summary>
+    /// <seealso cref="Graph"/>
     /// <seealso cref="ASD.Graphs"/>
     [Serializable]
     public sealed class AdjacencyMatrixGraph : Graph
@@ -15,6 +16,15 @@ namespace ASD.Graphs
         private double[,] _adjacencyMatrix;
         private List<Edge> _serializedAdjacencyMatrix;
 
+        /// <summary>
+        /// Tworzy graf składający się ze wskazanej liczby izolowanych wierzchołków
+        /// </summary>
+        /// <param name="directed">Informacja czy graf jest skierowany</param>
+        /// <param name="vertCount">Liczba wierzchołków grafu</param>
+        /// <seealso cref="AdjacencyMatrixGraph(Graph)"/>
+        /// <seealso cref="AdjacencyMatrixGraph"/>
+        /// <seealso cref="Graph"/>
+        /// <seealso cref="ASD.Graphs"/>
         public AdjacencyMatrixGraph(bool directed, int vertCount) : base(directed, vertCount)
         {
             _adjacencyMatrix = new double[vertCount, vertCount];
@@ -23,26 +33,82 @@ namespace ASD.Graphs
                     _adjacencyMatrix[i, j] = double.NaN;
         }
 
+        /// <summary>
+        /// Tworzy kopię grafu będącego parametrem
+        /// </summary>
+        /// <param name="g">Kopiowany graf</param>
+        /// <remarks>Wynikowy graf jest reprezentowany za pomocą macierzy sąsiedztwa,
+        /// źródłowy graf g może być reprezentowany w inny sposób. Może więc nastąpić zmiana sposobu reprezentacji grafu.
+        /// </remarks>
+        /// <seealso cref="AdjacencyMatrixGraph(bool,int)"/>
+        /// <seealso cref="AdjacencyMatrixGraph"/>
+        /// <seealso cref="Graph"/>
+        /// <seealso cref="ASD.Graphs"/>
         public AdjacencyMatrixGraph(Graph g) : this(g.Directed, g.VerticesCount)
         {
             Merge(g);
         }
 
+        /// <summary>
+        /// Tworzy głęboką kopię bieżącego grafu
+        /// </summary>
+        /// <returns>Utworzona kopia grafu</returns>
+        /// <remarks>Tworzony graf jest takiego samego typu jak bieżący, metoda to "wirtualny konstruktor".</remarks>
+        /// <seealso cref="AdjacencyMatrixGraph"/>
+        /// <seealso cref="Graph"/>
+        /// <seealso cref="ASD.Graphs"/>
         public override Graph Clone()
         {
             return new AdjacencyMatrixGraph(this);
         }
 
+        /// <summary>
+        /// Tworzy graf o takiej samej liczbie wierzchołków i "skierowalności" jak bieżący, ale bez żadnych krawędzi
+        /// </summary>
+        /// <returns>Utworzony graf</returns>
+        /// <remarks>Tworzony graf jest takiego samego typu jak bieżący, metoda to "wirtualny konstruktor".</remarks>
+        /// <seealso cref="IsolatedVerticesGraph(bool, int)"/>
+        /// <seealso cref="AdjacencyMatrixGraph"/>
+        /// <seealso cref="Graph"/>
+        /// <seealso cref="ASD.Graphs"/>
         public override Graph IsolatedVerticesGraph()
         {
             return new AdjacencyMatrixGraph(Directed, VerticesCount);
         }
 
+        /// <summary>
+        /// Tworzy graf składający się ze wskazanej liczby izolowanych wierzchołków
+        /// </summary>
+        /// <param name="directed">Informacja czy graf jest skierowany</param>
+        /// <param name="verticesCount">Liczba wierzchołków grafu</param>
+        /// <returns>Utworzony graf</returns>
+        /// <remarks>Tworzony graf jest takiego samego typu jak bieżący, metoda to "wirtualny konstruktor".</remarks>
+        /// <seealso cref="IsolatedVerticesGraph()"/>
+        /// <seealso cref="AdjacencyMatrixGraph"/>
+        /// <seealso cref="Graph"/>
+        /// <seealso cref="ASD.Graphs"/>
         public override Graph IsolatedVerticesGraph(bool directed, int verticesCount)
         {
             return new AdjacencyMatrixGraph(directed, verticesCount);
         }
 
+        /// <summary>
+        /// Dodaje do grafu krawędź o wskazanej wadze
+        /// </summary>
+        /// <param name="from">Początkowy wierzchołek krawędzi</param>
+        /// <param name="to">Końcowy wierzchołek krawędzi</param>
+        /// <param name="weight">Waga krawędzi</param>
+        /// <returns>Informacja czy dodawanie powiodło się</returns>
+        /// <exception cref="ArgumentException">Podanie nieprawidłowych (nieistniejących) numerów wierzchołków powoduje zgłoszenie wyjątku</exception>
+        /// <remarks>
+        /// Metoda zwraca false gdy wskazana krawędź już wcześniej istniała w grafie.<para/>
+        /// Podanie nieprawidłowych (nieistniejących) numerów wierzchołków powoduje zgłoszenie wyjątku.<para/>
+        /// W przypadku grafów nieważonych parametr weight należy pominąć.
+        /// </remarks>
+        /// <seealso cref="Graph.AddEdge(Edge)"/>
+        /// <seealso cref="AdjacencyMatrixGraph"/>
+        /// <seealso cref="Graph"/>
+        /// <seealso cref="ASD.Graphs"/>
         public override bool AddEdge(int from, int to, double weight = 1.0)
         {
             if (weight.IsNaN()) throw new ArgumentException("Invalid weight (NaN)");
@@ -60,6 +126,21 @@ namespace ASD.Graphs
             return true;
         }
 
+        /// <summary>
+        /// Usuwa krawędź z grafu
+        /// </summary>
+        /// <param name="from">Początkowy wierzchołek krawędzi</param>
+        /// <param name="to">Końcowy wierzchołek krawędzi</param>
+        /// <returns>Informacja czy usuwanie powiodło się</returns>
+        /// <exception cref="ArgumentException">Podanie nieprawidłowych (nieistniejących) numerów wierzchołków powoduje zgłoszenie wyjątku</exception>
+        /// <remarks>
+        /// Metoda zwraca false gdy wskazanej krawędzi nie było w grafie.<para/>
+        /// Podanie nieprawidłowych (nieistniejących) numerów wierzchołków powoduje zgłoszenie wyjątku.
+        /// </remarks>
+        /// <seealso cref="Graph.DelEdge(Edge)"/>
+        /// <seealso cref="AdjacencyMatrixGraph"/>
+        /// <seealso cref="Graph"/>
+        /// <seealso cref="ASD.Graphs"/>
         public override bool DelEdge(int from, int to)
         {
             if (_adjacencyMatrix[from, to].IsNaN()) return false;
@@ -76,11 +157,42 @@ namespace ASD.Graphs
             return true;
         }
 
+        /// <summary>
+        /// Zwraca wagę wskazanej krawędzi grafu
+        /// </summary>
+        /// <param name="from">Początkowy wierzchołek krawędzi</param>
+        /// <param name="to">Końcowy wierzchołek krawędzi</param>
+        /// <returns>Waga krawędzi</returns>
+        /// <remarks>
+        /// Metoda zwraca wartość NaN gdy wskazanej krawędzi nie ma w grafie.<para/>
+        /// Podanie nieprawidłowych (nieistniejących) numerów wierzchołków powoduje zgłoszenie wyjątku.<para/>
+        /// Do sprawdzenia czy metoda zwróciła NaN należy używać metody IsNaN, użycie operatora == spowoduje błędną odpowiedź (zawsze false).<para/>
+        /// Metody należy używać do dostępu do pojedynczych krawędzi.<para/>
+        /// Do zbadania wszystkich krawędzi wychodzących z danego wierzchołka należy używać metody OutEdges.
+        /// </remarks>
+        /// <seealso cref="AdjacencyMatrixGraph"/>
+        /// <seealso cref="Graph"/>
+        /// <seealso cref="ASD.Graphs"/>
         public override double GetEdgeWeight(int from, int to)
         {
             return _adjacencyMatrix[from, to];
         }
 
+        /// <summary>
+        /// Modyfikuje wagę wskazanej krawędzi grafu
+        /// </summary>
+        /// <param name="from">Początkowy wierzchołek krawędzi</param>
+        /// <param name="to">Końcowy wierzchołek krawędzi</param>
+        /// <param name="add">Wartość zwiększenia wagi krawędzi</param>
+        /// <returns>Nowa (zmodyfikowana) waga krawędzi</returns>
+        /// <remarks>
+        /// Metoda zwraca wartość NaN gdy wskazanej krawędzi nie ma w grafie.<para/>
+        /// Podanie nieprawidłowych (nieistniejących) numerów wierzchołków powoduje zgłoszenie wyjątku.<para/>
+        /// Do sprawdzenia czy metoda zwróciła NaN należy używać metody <see cref="GraphHelperExtender.IsNaN"/>, użycie operatora == spowoduje błędną odpowiedź (zawsze false).
+        /// </remarks>
+        /// <seealso cref="AdjacencyMatrixGraph"/>
+        /// <seealso cref="Graph"/>
+        /// <seealso cref="ASD.Graphs"/>
         public override double ModifyEdgeWeight(int from, int to, double add)
         {
             if (_adjacencyMatrix[from, to].IsNaN()) return double.NaN;
@@ -94,6 +206,18 @@ namespace ASD.Graphs
             return newWeight;
         }
 
+        /// <summary>
+        /// Wylicza wszystkie krawędzie wychodzące z danego wierzchołka
+        /// </summary>
+        /// <param name="from">Numer wierzchołka</param>
+        /// <returns>Żądane wyliczenie krawedzi</returns>
+        /// <remarks>
+        /// Metoda jest najczęściej używana w połaczeniu z instrukcją foreach.<para/>
+        /// Metoda w rzeczywistości zwraca tablicę krawędzi wychodzącyh z danego wierzchołka.
+        /// </remarks>
+        /// <seealso cref="AdjacencyMatrixGraph"/>
+        /// <seealso cref="Graph"/>
+        /// <seealso cref="ASD.Graphs"/>
         public override IEnumerable<Edge> OutEdges(int from)
         {
             var array = new Edge[OutDegree(from)];
