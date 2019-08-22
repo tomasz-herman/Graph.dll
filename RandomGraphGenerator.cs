@@ -12,16 +12,37 @@ namespace ASD.Graphs
     {
         private Random rand;
         
+        /// <summary>
+        /// Tworzy generator grafów
+        /// </summary>
+        /// <param name="seed">ziarno początkowe generatora</param>
+        /// <remarks>Jeśli seed==null to do inicjowania ziarna generatora wykorzystywany jest czas systemowy.</remarks>
+        /// <seealso cref="RandomGraphGenerator"/>
+        /// <seealso cref="ASD.Graphs"/>
         public RandomGraphGenerator(int? seed = null)
         {
             SetSeed(seed);
         }
 
+        /// <summary>
+        /// Ustawia ziarno generatora grafów
+        /// </summary>
+        /// <param name="seed">nowe ziarno początkowe</param>
+        /// <remarks>Jeśli seed==null to do inicjowania ziarna generatora wykorzystywany jest czas systemowy.</remarks>
+        /// <seealso cref="RandomGraphGenerator"/>
+        /// <seealso cref="ASD.Graphs"/>
         public void SetSeed(int? seed)
         {
             rand = seed == null ? new Random() : new Random(seed.Value);
         }
 
+        /// <summary>
+        /// Tworzy nowy graf uzyskany w wyniku losowej permutacji wierzchołków danego grafu
+        /// </summary>
+        /// <param name="g">Zadany graf</param>
+        /// <returns>Wynikowy graf</returns>
+        /// <seealso cref="RandomGraphGenerator"/>
+        /// <seealso cref="ASD.Graphs"/>
         public Graph Permute(Graph g)
         {
             var verticesCount = g.VerticesCount;
@@ -41,6 +62,29 @@ namespace ASD.Graphs
             return result;
         }
 
+        /// <summary>
+        /// Tworzy ważony graf nieskierowany
+        /// </summary>
+        /// <param name="tg">Sposób reprezentacji grafu</param>
+        /// <param name="n">Liczba wierzchołków</param>
+        /// <param name="density">Prawdopodobieństwo istnienia krawędzi</param>
+        /// <param name="minWeight">Dolna granica wagi krawędzi</param>
+        /// <param name="maxWeight">Górna granica wagi krawędzi</param>
+        /// <param name="integer">Informacja czy mają być generowane jedynie wartości całkowite</param>
+        /// <returns>Utworzony graf</returns>
+        /// <exception cref="ArgumentException">Gdy argumenty funkcji są nieprawidłowe</exception>
+        /// <remarks>
+        /// Tworzony graf nie zawiera pętli, prawdopodonieństwo istnienia krawędzi pomiędzy
+        /// dowolnymi wierzchołkami wynosi density.<para/>
+        /// Oczekiwana liczba krawędzi wynosi density*n*(n-1)/2<para/>
+        /// Wagi krawędzi są losowymi liczbami całkowitymi lub zmiennopozycyjnymi
+        /// (w zależności od wartości parametru integer) wygenerowanymi według rozkładu
+        /// jednostajnego z zakresu minWeight..maxWeight (włącznie).<para/>
+        /// Dla parametru integer==true parametry minWeight i maxWeight muszą mieć wartości całkowite.<para/>
+        /// Gęstość density musi być z przedziału [0,1].
+        /// </remarks>
+        /// <seealso cref="RandomGraphGenerator"/>
+        /// <seealso cref="ASD.Graphs"/>
         public Graph UndirectedGraph(Type tg, int n, double density, double minWeight = 1.0, double maxWeight = 1.0, bool integer = true)
         {
             if (n < 0 || density < 0.0 || density > 1.0 || minWeight > maxWeight)
@@ -61,6 +105,29 @@ namespace ASD.Graphs
             return result;
         }
 
+        /// <summary>
+        /// Tworzy ważony graf skierowany
+        /// </summary>
+        /// <param name="tg">Sposób reprezentacji grafu</param>
+        /// <param name="n">Liczba wierzchołków</param>
+        /// <param name="density">Prawdopodobieństwo istnienia krawędzi</param>
+        /// <param name="minWeight">Dolna granica wagi krawędzi</param>
+        /// <param name="maxWeight">Górna granica wagi krawędzi</param>
+        /// <param name="integer">Informacja czy mają być generowane jedynie wartości całkowite</param>
+        /// <returns>Utworzony graf</returns>
+        /// <exception cref="ArgumentException">Gdy argumenty funkcji są nieprawidłowe</exception>
+        /// <remarks>
+        /// Tworzony graf nie zawiera pętli, prawdopodonieństwo istnienia krawędzi pomiędzy
+        /// dowolnymi wierzchołkami wynosi density.<para/>
+        /// Oczekiwana liczba krawędzi wynosi density*n*(n-1)<para/>
+        /// Wagi krawędzi są losowymi liczbami całkowitymi lub zmiennopozycyjnymi
+        /// (w zależności od wartości parametru integer) wygenerowanymi według rozkładu
+        /// jednostajnego z zakresu minWeight..maxWeight (włącznie).<para/>
+        /// Dla parametru integer==true parametry minWeight i maxWeight muszą mieć wartości całkowite.<para/>
+        /// Gęstość density musi być z przedziału [0,1].
+        /// </remarks>
+        /// <seealso cref="RandomGraphGenerator"/>
+        /// <seealso cref="ASD.Graphs"/>
         public Graph DirectedGraph(Type tg, int n, double density, double minWeight = 1.0, double maxWeight = 1.0, bool integer = true)
         {
             if (n < 0 || density < 0.0 || density > 1.0 || minWeight > maxWeight)
@@ -82,26 +149,81 @@ namespace ASD.Graphs
             return result;
         }
 
-        public Graph SparseUndirectedGraph(Type tg, int n, int minDegree, int maxDegree, double minWeight, double maxWeight, bool integer = true)
+        /// <summary>
+        /// Tworzy rzadki ważony graf nieskierowany
+        /// </summary>
+        /// <param name="tg">Sposób reprezentacji grafu</param>
+        /// <param name="n">Liczba wierzchołków</param>
+        /// <param name="minDegree">Minimalny stopień wierzchołków</param>
+        /// <param name="maxDegree">Maksymalny stopień wierzchołków</param>
+        /// <param name="minWeight">Dolna granica wagi krawędzi</param>
+        /// <param name="maxWeight">Górna granica wagi krawędzi</param>
+        /// <param name="integer">Informacja czy mają być generowane jedynie wartości całkowite</param>
+        /// <returns>Utworzony graf</returns>
+        /// <remarks>
+        /// Tworzony graf nie zawiera pętli, liczba krawędzi wynosi (n*minDegree)/2 + (n*(maxDegree-minDegree)+3)/4.<para/>
+        /// Dla grafów o nieparzystej liczbie wierzchołków, dla których minDegree==maxDegree
+        /// i są one nieparzyste dla jednego wierzchołka minimalny stopień nie
+        /// jest osiągnięty (nie da się skonstruować odpowiedniego grafu).<para/>
+        /// Wagi krawędzi są losowymi liczbami całkowitymi lub zmiennopozycyjnymi
+        /// (w zależności od wartości parametru integer) wygenerowanymi według
+        /// rozkładu jednostajnego z zakresu minWeight..maxWeight (włącznie).<para/>
+        /// Dla parametru integer==true parametry minWeight i maxWeight muszą mieć wartości całkowite.
+        /// </remarks>
+        /// <seealso cref="RandomGraphGenerator"/>
+        /// <seealso cref="ASD.Graphs"/>
+        public Graph SparseUndirectedGraph(Type tg, int n, int minDegree, int maxDegree, double minWeight = 1.0, double maxWeight = 1.0, bool integer = true)
         {
             return SparseGraphGeneral(tg, false, n, minDegree, maxDegree, minWeight, maxWeight, integer);
         }
 
-        public Graph SparseUndirectedGraph(Type tg, int n, int minDegree, int maxDegree)
-        {
-            return SparseGraphGeneral(tg, false, n, minDegree, maxDegree, 1.0, 1.0);
-        }
-
-        public Graph SparseDirectedGraph(Type tg, int n, int minDegree, int maxDegree, double minWeight, double maxWeight, bool integer = true)
+        /// <summary>
+        /// Tworzy rzadki ważony graf skierowany
+        /// </summary>
+        /// <param name="tg">Sposób reprezentacji grafu</param>
+        /// <param name="n">Liczba wierzchołków</param>
+        /// <param name="minDegree">Minimalny stopień wierzchołków</param>
+        /// <param name="maxDegree">Maksymalny stopień wierzchołków</param>
+        /// <param name="minWeight">Dolna granica wagi krawędzi</param>
+        /// <param name="maxWeight">Górna granica wagi krawędzi</param>
+        /// <param name="integer">Informacja czy mają być generowane jedynie wartości całkowite</param>
+        /// <returns>Utworzony graf</returns>
+        /// <remarks>
+        /// Tworzony graf nie zawiera pętli, liczba krawędzi wynosi n*minDegree + (n*(maxDegree-minDegree))/2.<para/>
+        /// Wagi krawędzi są losowymi liczbami całkowitymi lub zmiennopozycyjnymi
+        /// (w zależności od wartości parametru integer) wygenerowanymi według
+        /// rozkładu jednostajnego z zakresu minWeight..maxWeight (włącznie).<para/>
+        /// Dla parametru integer==true parametry minWeight i maxWeight muszą mieć wartości całkowite.
+        /// </remarks>
+        /// <seealso cref="RandomGraphGenerator"/>
+        /// <seealso cref="ASD.Graphs"/>
+        public Graph SparseDirectedGraph(Type tg, int n, int minDegree, int maxDegree, double minWeight = 1.0, double maxWeight = 1.0, bool integer = true)
         {
             return SparseGraphGeneral(tg, true, n, minDegree, maxDegree, minWeight, maxWeight, integer);
         }
 
-        public Graph SparseDirectedGraph(Type tg, int n, int minDegree, int maxDegree)
-        {
-            return SparseGraphGeneral(tg, true, n, minDegree, maxDegree, 1.0, 1.0);
-        }
-
+        /// <summary>
+        /// Tworzy ważony skierowany graf acykliczny (DAG)
+        /// </summary>
+        /// <param name="tg">Sposób reprezentacji grafu</param>
+        /// <param name="n">Liczba wierzchołków</param>
+        /// <param name="density">Prawdopodobieństwo istnienia krawędzi</param>
+        /// <param name="minWeight">Dolna granica wagi krawędzi</param>
+        /// <param name="maxWeight">Górna granica wagi krawędzi</param>
+        /// <param name="integer">Informacja czy mają być generowane jedynie wartości całkowite</param>
+        /// <returns>Utworzony graf</returns>
+        /// <exception cref="ArgumentException">Gdy argumenty funkcji są nieprawidłowe</exception>
+        /// <remarks>
+        /// Prawdopodonieństwo istnienia krawędzi pomiędzy dowolnymi wierzchołkami wynosi density.<para/>
+        /// Oczekiwana liczba krawędzi wynosi density*n*(n-1)/2<para/>
+        /// Wagi krawędzi są losowymi liczbami całkowitymi lub zmiennopozycyjnymi
+        /// (w zależności od wartości parametru integer) wygenerowanymi według
+        /// rozkładu jednostajnego z zakresu minWeight..maxWeight (włącznie).<para/>
+        /// Dla parametru integer==true parametry minWeight i maxWeight muszą mieć wartości całkowite.<para/>
+        /// Gęstość density musi być z przedziału [0,1].
+        /// </remarks>
+        /// <seealso cref="RandomGraphGenerator"/>
+        /// <seealso cref="ASD.Graphs"/>
         public Graph DAG(Type tg, int n, double density, double minWeight, double maxWeight, bool integer = true)
         {
             if (n < 0 || density < 0.0 || density > 1.0 || minWeight > maxWeight)
@@ -122,6 +244,31 @@ namespace ASD.Graphs
             return Permute(result);
         }
 
+        /// <summary>
+        /// Tworzy nieskierowany graf euklidesowy
+        /// </summary>
+        /// <param name="tg">Sposób reprezentacji grafu</param>
+        /// <param name="n">Liczba wierzchołków</param>
+        /// <param name="density">Prawdopodobieństwo istnienia krawędzi</param>
+        /// <param name="minx">Dolna granica wartości współrzędnej x</param>
+        /// <param name="maxx">Górna granica wartości współrzędnej x</param>
+        /// <param name="miny">Dolna granica wartości współrzędnej y</param>
+        /// <param name="maxy">Górna granica wartości współrzędnej y</param>
+        /// <param name="integer">Informacja czy mają być generowane jedynie wartości całkowite</param>
+        /// <returns>Utworzony graf</returns>
+        /// <exception cref="ArgumentException">Gdy argumenty funkcji są nieprawidłowe</exception>
+        /// <remarks>
+        /// Tworzony graf nie zawiera pętli, prawdopodonieństwo istnienia krawędzi
+        /// pomiędzy dowolnymi wierzchołkami wynosi density.<para/>
+        /// Oczekiwana liczba krawędzi wynosi density*n*(n-1)/2<para/>
+        /// Wagi krawędzi odpowiadają odległościom euklidesowym między wierzchołkami
+        /// rozmieszczonymi losowo na płaszczyznie (dla parametru integer==true zaokrąglonym
+        /// w górę do wartości całkowitej), rozkład punktów jednostajny na obszarze [minx,maxx]*[miny,maxy].<para/>
+        /// Dla parametru integer==true parametry minWeight i maxWeight muszą mieć wartości całkowite.<para/>
+        /// Gęstość density musi być z przedziału [0,1].
+        /// </remarks>
+        /// <seealso cref="RandomGraphGenerator"/>
+        /// <seealso cref="ASD.Graphs"/>
         public Graph UndirectedEuclidGraph(Type tg, int n, double density, double minx, double maxx, double miny, double maxy, bool integer = true)
         {
             if (n < 0 || density < 0.0 || density > 1.0 || !(minx < maxx) || !(miny < maxy))
@@ -150,6 +297,35 @@ namespace ASD.Graphs
             return result;
         }
 
+        /// <summary>
+        /// Tworzy nieskierowany graf euklidesowego sąsiedztwa
+        /// </summary>
+        /// <param name="tg">Sposób reprezentacji grafu</param>
+        /// <param name="n">Liczba wierzchołków</param>
+        /// <param name="density">Prawdopodobieństwo istnienia krawędzi</param>
+        /// <param name="minx">Dolna granica wartości współrzędnej x</param>
+        /// <param name="maxx">Górna granica wartości współrzędnej x</param>
+        /// <param name="miny">Dolna granica wartości współrzędnej y</param>
+        /// <param name="maxy">Górna granica wartości współrzędnej y</param>
+        /// <param name="integer">Informacja czy mają być generowane jedynie wartości całkowite</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException">Gdy argumenty funkcji są nieprawidłowe</exception>
+        /// <remarks>
+        /// Graf tworzony jest według nastepujących reguł:<para/>
+        /// Wierzchołki rozmieszczane są losowo na płaszczyznie,
+        /// rozkład punktów jednostajny na obszarze [minx,maxx]*[miny,maxy].<para/>
+        /// Przez maxd oznaczmy odległość euklidesową punktu (minx,miny) od punktu (maxx,maxy).<para/>
+        /// Wierzchołki połączone są krawędzią wtedy i tylko wtedy gdy są różne (pętle wykluczamy)
+        /// i ich euklidesowa odległość jest mniejsza lub równa d*maxd.<para/>
+        /// Wagi krawędzi odpowiadają odległościom euklidesowym między
+        /// wierzchołkami zaokrąglonym w górę do wartości całkowitej.<para/>
+        /// Wagi krawędzi odpowiadają odległościom euklidesowym między wierzchołkami
+        /// (dla parametru integer==true zaokrąglonym w górę do wartości całkowitej).<para/>
+        /// Dla parametru integer==true parametry minWeight i maxWeight muszą mieć wartości całkowite.<para/>
+        /// Współczynnik d musi być z przedziału [0,1].
+        /// </remarks>
+        /// <seealso cref="RandomGraphGenerator"/>
+        /// <seealso cref="ASD.Graphs"/>
         public Graph UndirectedEuclidNeighbourhoodGraph(Type tg, int n, double density, double minx, double maxx, double miny, double maxy, bool integer = true)
         {
             if (n < 0 || !(density >= 0.0) || !(density <= 1.0) || !(minx < maxx) || !(miny < maxy))
@@ -178,6 +354,30 @@ namespace ASD.Graphs
             return result;
         }
 
+        /// <summary>
+        /// Tworzy ważony graf dwudzielny
+        /// </summary>
+        /// <param name="tg">Sposób reprezentacji grafu</param>
+        /// <param name="n">Liczba wierzchołków w pierwszym podzbiorze</param>
+        /// <param name="m">Liczba wierzchołków w drugim podzbiorze</param>
+        /// <param name="density">Prawdopodobieństwo istnienia krawędzi</param>
+        /// <param name="minWeight">Dolna granica wagi krawędzi</param>
+        /// <param name="maxWeight">Górna granica wagi krawędzi</param>
+        /// <param name="integer">Informacja czy mają być generowane jedynie wartości całkowite</param>
+        /// <returns>Utworzony graf</returns>
+        /// <exception cref="ArgumentException">Gdy argumenty funkcji są nieprawidłowe</exception>
+        /// <remarks>
+        /// Tworzony graf ma n+m wierzchołków, jest to nieskierowany graf (n,m)-dwudzielny.<para/>
+        /// Prawdopodonieństwo istnienia krawędzi pomiędzy wierzchołkami z różnych podzbiorów wynosi density.<para/>
+        /// Oczekiwana liczba krawędzi wynosi density*n*m/2<para/>
+        /// Wagi krawędzi są losowymi liczbami całkowitymi lub zmiennopozycyjnymi
+        /// (w zależności od wartości parametru integer) wygenerowanymi według rozkładu
+        /// jednostajnego z zakresu minWeight..maxWeight (włącznie).<para/>
+        /// Dla parametru integer==true parametry minWeight i maxWeight muszą mieć wartości całkowite.<para/>
+        /// Gęstość density musi być z przedziału [0,1].
+        /// </remarks>
+        /// <seealso cref="RandomGraphGenerator"/>
+        /// <seealso cref="ASD.Graphs"/>
         public Graph BipariteGraph(Type tg, int n, int m, double density, double minWeight = 1.0, double maxWeight = 1.0, bool integer = true)
         {
             if (n < 0 || m < 0 || !(density >= 0.0) || !(density <= 1.0) || !(minWeight <= maxWeight))
@@ -199,26 +399,82 @@ namespace ASD.Graphs
             return Permute(result);
         }
 
-        public Graph EulerGraph(Type tg, bool directed, int n, double density, double minWeight, double maxWeight, bool integer = true)
+        /// <summary>
+        /// Tworzy ważony graf eulerowski
+        /// </summary>
+        /// <param name="tg">Sposób reprezentacji grafu</param>
+        /// <param name="directed">Informacja czy graf jest skierowany</param>
+        /// <param name="n">Liczba wierzchołków</param>
+        /// <param name="density">Prawdopodobieństwo istnienia krawędzi</param>
+        /// <param name="minWeight">Dolna granica wagi krawędzi</param>
+        /// <param name="maxWeight">Górna granica wagi krawędzi</param>
+        /// <param name="integer">Informacja czy mają być generowane jedynie wartości całkowite</param>
+        /// <returns>Utworzony graf</returns>
+        /// <remarks>
+        /// Tworzony graf nie zawiera pętli<para/>
+        /// Wagi krawędzi są losowymi liczbami całkowitymi lub zmiennopozycyjnymi
+        /// (w zależności od wartości parametru integer) wygenerowanymi według rozkładu
+        /// jednostajnego z zakresu minWeight..maxWeight (włącznie).<para/>
+        /// Dla parametru integer==true parametry minWeight i maxWeight muszą mieć wartości całkowite.<para/>
+        /// Gęstość krawędzi (parametr density) określona jest jedynie w
+        /// sposób przybliżony (wartość parametru musi być z przedziału [0,1]).
+        /// </remarks>
+        /// <seealso cref="RandomGraphGenerator"/>
+        /// <seealso cref="ASD.Graphs"/>
+        public Graph EulerGraph(Type tg, bool directed, int n, double density, double minWeight = 1.0, double maxWeight = 1.0, bool integer = true)
         {
             return GeneralEulerGraph(tg, directed, false, n, density, minWeight, maxWeight, integer);
         }
 
-        public Graph EulerGraph(Type tg, bool directed, int n, double density)
-        {
-            return GeneralEulerGraph(tg, directed, false, n, density, 1.0, 1.0);
-        }
-
-        public Graph SemiEulerGraph(Type tg, bool directed, int n, double density, double minWeight, double maxWeight, bool integer = true)
+        /// <summary>
+        /// Tworzy ważony graf półeulerowski
+        /// </summary>
+        /// <param name="tg">Sposób reprezentacji grafu</param>
+        /// <param name="directed">Informacja czy graf jest skierowany</param>
+        /// <param name="n">Liczba wierzchołków</param>
+        /// <param name="density">Prawdopodobieństwo istnienia krawędzi</param>
+        /// <param name="minWeight">Dolna granica wagi krawędzi</param>
+        /// <param name="maxWeight">Górna granica wagi krawędzi</param>
+        /// <param name="integer">Informacja czy mają być generowane jedynie wartości całkowite</param>
+        /// <returns>Utworzony graf</returns>
+        /// <remarks>
+        /// Tworzony graf nie zawiera pętli<para/>
+        /// Wagi krawędzi są losowymi liczbami całkowitymi lub zmiennopozycyjnymi
+        /// (w zależności od wartości parametru integer) wygenerowanymi według rozkładu
+        /// jednostajnego z zakresu minWeight..maxWeight (włącznie).<para/>
+        /// Dla parametru integer==true parametry minWeight i maxWeight muszą mieć wartości całkowite.<para/>
+        /// Gęstość krawędzi (parametr density) określona jest jedynie w
+        /// sposób przybliżony (wartość parametru musi być z przedziału [0,1]).
+        /// </remarks>
+        /// <seealso cref="RandomGraphGenerator"/>
+        /// <seealso cref="ASD.Graphs"/>
+        public Graph SemiEulerGraph(Type tg, bool directed, int n, double density, double minWeight = 1.0, double maxWeight = 1.0, bool integer = true)
         {
             return GeneralEulerGraph(tg, directed, true, n, density, minWeight, maxWeight, integer);
         }
 
-        public Graph SemiEulerGraph(Type tg, bool directed, int n, double density)
-        {
-            return GeneralEulerGraph(tg, directed, true, n, density, 1.0, 1.0);
-        }
-
+        /// <summary>
+        /// Tworzy ważone drzewo nieskierowane
+        /// </summary>
+        /// <param name="tg">Sposób reprezentacji grafu</param>
+        /// <param name="n">Liczba wierzchołków</param>
+        /// <param name="density">Prawdopodobieństwo istnienia krawędzi</param>
+        /// <param name="minWeight">Dolna granica wagi krawędzi</param>
+        /// <param name="maxWeight">Górna granica wagi krawędzi</param>
+        /// <param name="integer">Informacja czy mają być generowane jedynie wartości całkowite</param>
+        /// <returns>Utworzony graf</returns>
+        /// <exception cref="ArgumentException">Gdy argumenty funkcji są nieprawidłowe</exception>
+        /// <remarks>
+        /// Tworzony graf jest drzewem (lasem).<para/>
+        /// Oczekiwana liczba krawędzi wynosi density*(n-1)<para/>
+        /// Wagi krawędzi są losowymi liczbami całkowitymi lub zmiennopozycyjnymi
+        /// (w zależności od wartości parametru integer) wygenerowanymi według rozkładu
+        /// jednostajnego z zakresu minWeight..maxWeight (włącznie).<para/>
+        /// Dla parametru integer==true parametry minWeight i maxWeight muszą mieć wartości całkowite.<para/>
+        /// Gęstość density musi być z przedziału [0,1].
+        /// </remarks>
+        /// <seealso cref="RandomGraphGenerator"/>
+        /// <seealso cref="ASD.Graphs"/>
         public Graph TreeGraph(Type tg, int n, double density, double minWeight = 1.0, double maxWeight = 1.0, bool integer = true)
         {
             if (n < 0 || !(density >= 0.0) || !(density <= 1.0) || !(minWeight <= maxWeight))
@@ -260,6 +516,25 @@ namespace ASD.Graphs
             return result;
         }
 
+        /// <summary>
+        /// Tworzy ważony cykl nieskierowany
+        /// </summary>
+        /// <param name="tg">Sposób reprezentacji grafu</param>
+        /// <param name="n">Liczba wierzchołków</param>
+        /// <param name="minWeight">Dolna granica wagi krawędzi</param>
+        /// <param name="maxWeight">Górna granica wagi krawędzi</param>
+        /// <param name="integer">Informacja czy mają być generowane jedynie wartości całkowite</param>
+        /// <returns>Utworzony graf</returns>
+        /// <exception cref="ArgumentException">Gdy argumenty funkcji są nieprawidłowe</exception>
+        /// <remarks>
+        /// Stworzony graf jest n-elementowym cyklem nieskierowanym (kolejność wierzchołków w cyklu losowa).<para/>
+        /// Wagi krawędzi są losowymi liczbami całkowitymi lub zmiennopozycyjnymi
+        /// (w zależności od wartości parametru integer) wygenerowanymi według rozkładu
+        /// jednostajnego z zakresu minWeight..maxWeight (włącznie).<para/>
+        /// Dla parametru integer==true parametry minWeight i maxWeight muszą mieć wartości całkowite.
+        /// </remarks>
+        /// <seealso cref="RandomGraphGenerator"/>
+        /// <seealso cref="ASD.Graphs"/>
         public Graph UndirectedCycle(Type tg, int n, double minWeight = 1.0, double maxWeight = 1.0, bool integer = true)
         {
             if (n < 2 || minWeight > maxWeight)
@@ -277,6 +552,25 @@ namespace ASD.Graphs
             return Permute(result);
         }
 
+        /// <summary>
+        /// Tworzy ważony cykl skierowany
+        /// </summary>
+        /// <param name="tg">Sposób reprezentacji grafu</param>
+        /// <param name="n">Liczba wierzchołków</param>
+        /// <param name="minWeight">Dolna granica wagi krawędzi</param>
+        /// <param name="maxWeight">Górna granica wagi krawędzi</param>
+        /// <param name="integer">Informacja czy mają być generowane jedynie wartości całkowite</param>
+        /// <returns>Utworzony graf</returns>
+        /// <exception cref="ArgumentException">Gdy argumenty funkcji są nieprawidłowe</exception>
+        /// <remarks>
+        /// Stworzony graf jest n-elementowym cyklem skierowanym (kolejność wierzchołków w cyklu losowa).<para/>
+        /// Wagi krawędzi są losowymi liczbami całkowitymi lub zmiennopozycyjnymi
+        /// (w zależności od wartości parametru integer) wygenerowanymi według rozkładu
+        /// jednostajnego z zakresu minWeight..maxWeight (włącznie).<para/>
+        /// Dla parametru integer==true parametry minWeight i maxWeight muszą mieć wartości całkowite.
+        /// </remarks>
+        /// <seealso cref="RandomGraphGenerator"/>
+        /// <seealso cref="ASD.Graphs"/>
         public Graph DirectedCycle(Type tg, int n, double minWeight = 1.0, double maxWeight = 1.0, bool integer = true)
         {
             if (n < 2 || minWeight > maxWeight)
@@ -294,6 +588,33 @@ namespace ASD.Graphs
             return Permute(result);
         }
 
+        /// <summary>
+        /// Tworzy graf będący siecią przepływową ze źródłem i ujściem
+        /// </summary>
+        /// <param name="tg">Sposób reprezentacji grafu</param>
+        /// <param name="n">Liczba wierzchołków</param>
+        /// <param name="nn">Oczekiwana liczba krawędzi "w stronę ujścia" z każdego z wierzchołków</param>
+        /// <param name="d">Prawdopodobieństwo istnienia krawędzi "w stronę źródła</param>
+        /// <param name="capacity">Typowa przepustowość krawędzi</param>
+        /// <param name="twoWay">Informacja czy dozwolone są krawędzie w obu kierunkach</param>
+        /// <returns>Krotka (network, source, target) składająca się z utworzonej sieci oraz jej źródła i ujścia</returns>
+        /// <exception cref="ArgumentException">Gdy argumenty funkcji są nieprawidłowe</exception>
+        /// <remarks>
+        /// Sieć tworzona jest według nastepujących reguł:<para/>
+        /// Wierzchołki rozmieszczane są zgodnie z rozkładem jednostajnym na przedziale [0,1].<para/>
+        /// Jako źródło przyjmowany jest wierzchołek o największej współrzędnej,
+        /// a jako ujście wierzchołek o najmniejszej współrzędnej.<para/>
+        /// Krawędziami połączone są wierzchołki odległe o nie więcej niż nn/n.<para/>
+        /// Jeśli wierzchołki spełniają tą zależność to krawędź "w stronę ujścia" wprowadzana jest zawsze,
+        /// a krawędź "w stronę źródła" z prawdopodonieństwem d.<para/>
+        /// Wagi krawędzi generowane są odrębnie (zawsze generowane są wartości całkowite).<para/>
+        /// Współczynnik d musi być z przedziału [0,1].<para/>
+        /// Jeśli generowana sieć ma być wykorzystywana jako sieć z kosztami
+        /// to parametr twoWay musi mieć wartość false (w tym przypadku z prawdopodonieństwem
+        /// d istnieje jedynie krawędź "w stronę źródła").
+        /// </remarks>
+        /// <seealso cref="RandomGraphGenerator"/>
+        /// <seealso cref="ASD.Graphs"/>
         public (Graph network, int source, int target) FlowNetwork(Type tg, int n, int nn, double d, int capacity, bool twoWay = true)
         {
             if (n < 2 || nn < 1 || nn > n || capacity < 1 || !(d >= 0.0) || !(d <= 1.0))
@@ -371,6 +692,24 @@ namespace ASD.Graphs
             return (result, source, target);
         }
 
+        /// <summary>
+        /// Tworzy graf kosztów
+        /// </summary>
+        /// <param name="g">Graf bazowy</param>
+        /// <param name="minCost">Dolna granica wagi krawędzi (kosztu)</param>
+        /// <param name="maxCost">Górna granica wagi krawędzi (kosztu)</param>
+        /// <param name="integer">Informacja czy mają być generowane jedynie wartości całkowite</param>
+        /// <returns>Utworzony graf</returns>
+        /// <exception cref="ArgumentException">Gdy argumenty funkcji są nieprawidłowe</exception>
+        /// <remarks>
+        /// Utworzony graf ma identyczną strukturę i identyczną reprezentację jak graf bazowy.<para/>
+        /// Wagi krawędzi (koszty) są losowymi liczbami całkowitymi lub zmiennopozycyjnymi
+        /// (w zależności od wartości parametru integer) wygenerowanymi według rozkładu jednostajnego
+        /// z zakresu minCost..maxCost (włącznie).<para/>
+        /// Dla parametru integer==true parametry minCost i maxCost muszą mieć wartości całkowite.
+        /// </remarks>
+        /// <seealso cref="RandomGraphGenerator"/>
+        /// <seealso cref="ASD.Graphs"/>
         public Graph CostGraph(Graph g, double minCost, double maxCost, bool integer = true)
         {
             if (g == null || !g.Directed || minCost > maxCost)
@@ -384,6 +723,32 @@ namespace ASD.Graphs
             return result;
         }
 
+        /// <summary>
+        /// Metoda do tworzenia wszelkiego rodzaju grafów rzadkich
+        /// </summary>
+        /// <param name="tg">Sposób reprezentacji grafu</param>
+        /// <param name="directed">Informacja czy graf jest skierowany</param>
+        /// <param name="n">Liczba wierzchołków</param>
+        /// <param name="minDegree">Minimalny stopień wierzchołków</param>
+        /// <param name="maxDegree">Maksymalny stopień wierzchołków</param>
+        /// <param name="minWeight">Dolna granica wagi krawędzi</param>
+        /// <param name="maxWeight">Górna granica wagi krawędzi</param>
+        /// <param name="integer">Informacja czy mają być generowane jedynie wartości całkowite</param>
+        /// <returns>Utworzony graf</returns>
+        /// <exception cref="ArgumentException">Gdy argumenty funkcji są nieprawidłowe</exception>
+        /// <remarks>
+        /// Tworzony graf nie zawiera pętli, liczba krawędzi wynosi n*minDegree + (n*(maxDegree-minDegree))/2
+        /// dla grafów skierowanych (n*minDegree)/2 + (n*(maxDegree-minDegree)+3)/4 dla grafów nieskierowanych.<para/>
+        /// Dla grafów nieskierowanych o nieparzystej liczbie wierzchołków, dla których minDegree==maxDegree
+        /// i są one nieparzyste dla jednego wierzchołka mminimalny stopień nie jest osiągnięty
+        /// (nie da się skonstruować odpowiedniego grafu).<para/>
+        /// Wagi krawędzi są losowymi liczbami całkowitymi lub zmiennopozycyjnymi
+        /// (w zależności od wartości parametru integer) wygenerowanymi według rozkładu jednostajnego
+        /// z zakresu minWeight..maxWeight (włącznie).<para/>
+        /// Dla parametru integer==true parametry minWeight i maxWeight muszą mieć wartości całkowite.
+        /// </remarks>
+        /// <seealso cref="RandomGraphGenerator"/>
+        /// <seealso cref="ASD.Graphs"/>
         public Graph SparseGraphGeneral(Type tg, bool directed, int n, int minDegree, int maxDegree, double minWeight, double maxWeight, bool integer = true)
         {
             if (n < 0) throw new ArgumentException("Invalid random graph generator argument");
