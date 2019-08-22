@@ -9,6 +9,25 @@ namespace ASD.Graphs
     /// <seealso cref="ASD.Graphs"/>
     public static class AStarGraphExtender
     {
+        /// <summary>
+        /// Wyznacza najkrótszą ścieżkę do wskazanego wierzchołka algorytmem A*
+        /// </summary>
+        /// <param name="g">Badany graf</param>
+        /// <param name="s">Wierzchołek źródłowy</param>
+        /// <param name="t">Wierzchołek docelowy</param>
+        /// <param name="p">Znaleziona ścieżka (parametr wyjściowy)</param>
+        /// <param name="h">Oszacowanie odległości wierzchołków (funkcja)</param>
+        /// <returns>Informacja czy ścieżka do wierzchołka docelowego istnieje</returns>
+        /// <remarks>
+        /// Domyślna wartość parametru h (null) oznacza, że zostanie przyjęte oszacowanie zerowe.
+        /// Algorytm A* sprowadza się wówczas do algorytmu Dijkstry.<para/>
+        /// Metoda nie bada spełnienia założeń algorytmu A* - jeśli nie one są spełnione
+        /// może zwrócić błędny wynik (nieoptymalną ścieżkę).<para/>
+        /// Informacja, czy szukana ścieżka istnieje, zawsze jest zwracana poprawnie.
+        /// Jeśli nie istnieje (wynik false), to parametr p jest równy null.
+        /// </remarks>
+        /// <seealso cref="AStarGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static bool AStar(this Graph g, int s, int t, out Edge[] p, Func<int, int, double> h = null)
         {
             bool Cmp(KeyValuePair<int, double> keyValuePair1, KeyValuePair<int, double> keyValuePair2)

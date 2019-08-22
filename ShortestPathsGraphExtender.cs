@@ -10,6 +10,26 @@ namespace ASD.Graphs
     /// <seealso cref="ASD.Graphs"/>
     public static class ShortestPathsGraphExtender
     {
+        /// <summary>
+        /// Wyznacza najkrótsze ścieżki algorytmem Forda-Bellmana
+        /// </summary>
+        /// <param name="g">Badany graf</param>
+        /// <param name="s">Wierzchołek źródłowy</param>
+        /// <param name="d">Znalezione najkrótsze ścieżki (parametr wyjściowy)</param>
+        /// <returns>Informacja czy graf spełnia założenia algorytmu Forda-Bellmana</returns>
+        /// <exception cref="ArgumentException">Gdy uruchomiona dla grafu nieskierowanego</exception>
+        /// <remarks>
+        /// Elementy tablicy d zawierają odległości od źródła do wierzchołka określonego przez indeks elementu.<para/>
+        /// Jeśli ścieżka od źródła do danego wierzchołka nie istnieje, to odległość ma wartość NaN.<para/>
+        /// Metoda uruchomiona dla grafu nieskierowanego zgłasza wyjątek <see cref="ArgumentException"/>.<para/>
+        /// Jeśli badany graf nie spełnia założeń algorytmu Forda-Bellmana, to metoda zwraca false.
+        /// Parametr d zawiera wówczas informacje umożliwiające wyznaczenie cyklu o ujemnej długości.<para/>
+        /// Założenia badane są jedynie częściowo, w zakresie mogącym wpłynąć na działanie algorytmu
+        /// (na przykład dla grafu niespójnego cykle o ujemnej długości w innej składowej spójnej
+        /// niż źródło nie zostaną wykryte - metoda zwróci true).
+        /// </remarks>
+        /// <seealso cref="ShortestPathsGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static bool FordBellmanShortestPaths(this Graph g, int s, out PathsInfo[] d)
         {
             if (!g.Directed)
@@ -47,6 +67,27 @@ namespace ASD.Graphs
             return !change;
         }
         
+        /// <summary>
+        /// Wyznacza najkrótsze ścieżki algorytmem Forda-Bellmana
+        /// </summary>
+        /// <param name="g">Badany graf</param>
+        /// <param name="s">Wierzchołek źródłowy</param>
+        /// <param name="d">Znalezione najkrótsze ścieżki (parametr wyjściowy)</param>
+        /// <returns>Informacja czy graf spełnia założenia algorytmu Forda-Bellmana</returns>
+        /// <exception cref="ArgumentException">Gdy uruchomiona dla grafu nieskierowanego</exception>
+        /// <remarks>
+        /// Elementy tablicy d zawierają odległości od źródła do wierzchołka określonego przez indeks elementu.<para/>
+        /// Jeśli ścieżka od źródła do danego wierzchołka nie istnieje, to odległość ma wartość NaN.<para/>
+        /// Metoda uruchomiona dla grafu nieskierowanego zgłasza wyjątek <see cref="ArgumentException"/>.<para/>
+        /// Jeśli badany graf nie spełnia założeń algorytmu Forda-Bellmana, to metoda zwraca false.
+        /// Parametr d zawiera wówczas informacje umożliwiające wyznaczenie cyklu o ujemnej długości.<para/>
+        /// Założenia badane są jedynie częściowo, w zakresie mogącym wpłynąć na działanie algorytmu
+        /// (na przykład dla grafu niespójnego cykle o ujemnej długości w innej składowej spójnej
+        /// niż źródło nie zostaną wykryte - metoda zwróci true).<para/>
+        /// Metoda wykonuje obliczenia równolegle w wielu wątkach.
+        /// </remarks>
+        /// <seealso cref="ShortestPathsGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static bool FordBellmanShortestPathsParallel(this Graph g, int s, out PathsInfo[] d)
         {
             if (!g.Directed)
@@ -100,6 +141,25 @@ namespace ASD.Graphs
             return !change;
         }
 
+        /// <summary>
+        /// Znajduje cykl o ujemnej długości (wadze)
+        /// </summary>
+        /// <param name="g">Badany graf</param>
+        /// <param name="d">Informacje o najkrótszych ścieżkach</param>
+        /// <returns>
+        /// Krotka (weight, cycle) składająca się z długości (sumy wag krawędzi)
+        /// znalezionego cyklu i tablicy krawędzi tworzących ten cykl)
+        /// </returns>
+        /// <remarks>
+        /// Elementy tablicy d powinny zawierać odległości wyznaczone algorytmem Forda-Bellmana,
+        /// który zatrzymał się z wynikiem false.<para/>
+        /// Jeśli analiza tablicy d nie wykryła cyklu o ujemnej długości metoda zwraca (0,null).<para/>
+        /// Nie oznacza to, że w grafie nie ma żadnego cyklu o ujemnej dlugości, a jedynie że nie ma takiego cyklu,
+        /// który zakłóciłby działanie uruchomionego wcześciej algorytmu Forda-Bellmana (dla danego źródła).<para/>
+        /// Elementy (krawędzie) umieszczone są w zwracanej tablicy w kolejności swojego następstwa w znalezionym cyklu.
+        /// </remarks>
+        /// <seealso cref="ShortestPathsGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static (double weight, Edge[] cycle) FindNegativeCostCycle(this Graph g, PathsInfo[] d)
         {
             Edge? edge = null;
@@ -141,6 +201,25 @@ namespace ASD.Graphs
             return (weight, edgesStack.ToArray());
         }
         
+        /// <summary>
+        /// Wyznacza najkrótsze ścieżki algorytmem Dijkstry
+        /// </summary>
+        /// <param name="g">Badany graf</param>
+        /// <param name="s">Wierzchołek źródłowy</param>
+        /// <param name="d">Znalezione najkrótsze ścieżki (parametr wyjściowy)</param>
+        /// <returns>Informacja czy graf spełnia założenia algorytmu Dijkstry</returns>
+        /// <remarks>
+        /// Elementy tablicy d zawierają odległości od źródła do wierzchołka określonego przez indeks elementu.<para/>
+        /// Jeśli ścieżka od źródła do danego wierzchołka nie istnieje, to odległość ma wartość NaN.<para/>
+        /// Jeśli badany graf nie spełnia założeń algorytmu Dijkstry, to metoda zwraca false.
+        /// Parametr d jest wówczas równy null.<para/>
+        /// Założenia badane są jedynie częściowo, w zakresie mogącym wpłynąć na działanie algorytmu
+        /// (na przykład dla grafu niespójnego krawędzie o ujemnych wagach w innej składowej spójnej
+        /// niż źródło nie zostaną wykryte - metoda zwróci true).<para/>
+        /// Zaimplementowana jest wersja alorytmu Dijkstry korzystająca z kolejki priorytetowej.
+        /// </remarks>
+        /// <seealso cref="ShortestPathsGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static bool DijkstraShortestPaths(this Graph g, int s, out PathsInfo[] d)
         {
             bool Cmp(KeyValuePair<int, double> kvp1, KeyValuePair<int, double> kvp2)
@@ -178,6 +257,25 @@ namespace ASD.Graphs
             return true;
         }
 
+        /// <summary>
+        /// Wyznacza najkrótsze ścieżki w grafie skierowanym bez cykli (DAG)
+        /// </summary>
+        /// <param name="g">Badany graf</param>
+        /// <param name="s">Wierzchołek źródłowy</param>
+        /// <param name="d">Znalezione najkrótsze ścieżki (parametr wyjściowy)</param>
+        /// <returns>Informacja czy graf spełnia założenia algorytmu</returns>
+        /// <exception cref="ArgumentException">Gdy uruchomiona dla grafu nieskierowanego</exception>
+        /// <remarks>
+        /// Elementy tablicy d zawierają odległości od źródła do wierzchołka określonego przez indeks elementu.<para/>
+        /// Jeśli ścieżka od źródła do danego wierzchołka nie istnieje, to odległość ma wartość NaN.<para/>
+        /// Metoda uruchomiona dla grafu nieskierowanego zgłasza wyjątek <see cref="ArgumentException"/>.<para/>
+        /// Jeśli badany graf jest skierowany, ale zawiera cykl, to metoda zwraca false.
+        /// Parametr d jest wówczas równy null.<para/>
+        /// Wykrywane są jedynie cykle osiągalne ze źródła (tylko takie mogą wpłynąć na działanie algorytmu),
+        /// cykle nieosiągalne nie zostaną wykryte - metoda zwróci true.
+        /// </remarks>
+        /// <seealso cref="ShortestPathsGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static bool DAGShortestPaths(this Graph g, int s, out PathsInfo[] d)
         {
             if (!g.Directed)
@@ -206,6 +304,20 @@ namespace ASD.Graphs
             return true;
         }
 
+        /// <summary>
+        /// Wyznacza ścieżki składające się z najmniejszej liczby krawędzi
+        /// </summary>
+        /// <param name="g">Badany graf</param>
+        /// <param name="s">Wierzchołek źródłowy</param>
+        /// <param name="d">Znalezione najkrótsze ścieżki (parametr wyjściowy)</param>
+        /// <returns>true</returns>
+        /// <remarks>
+        /// Elementy tablicy d zawierają odległości od źródła do wierzchołka określonego przez indeks elementu.<para/>
+        /// Jeśli ścieżka od źródła do danego wierzchołka nie istnieje, to odległość ma wartość NaN. <para/>
+        /// Metoda zawsze zwraca true (można ją stosować do każdego grafu).
+        /// </remarks>
+        /// <seealso cref="ShortestPathsGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static bool BFPaths(this Graph g, int s, out PathsInfo[] d)
         {
             var dTemp = new PathsInfo[g.VerticesCount];
@@ -226,6 +338,22 @@ namespace ASD.Graphs
             return true;
         }
 
+        /// <summary>
+        /// Wyznacza najkrótsze ścieżki algorytmem Floyda-Warshalla
+        /// </summary>
+        /// <param name="g">Badany graf</param>
+        /// <param name="d">Znalezione najkrótsze ścieżki (parametr wyjściowy)</param>
+        /// <returns>Informacja czy graf nie zawiera cyklu o ujemnej długości</returns>
+        /// <exception cref="ArgumentException">Gdy uruchomiona dla grafu nieskierowanego</exception>
+        /// <remarks>
+        /// Elementy tablicy d zawierają odległości pomiedzy każdą parą wierzchołków grafu.<para/>
+        /// Jeśli dla danej pary wierzchołków odpowiednia ścieżka nie istnieje, to odległość ma wartość NaN.<para/>
+        /// Metoda uruchomiona dla grafu nieskierowanego zgłasza wyjątek <see cref="ArgumentException"/>.<para/>
+        /// Jeśli badany graf zawiera cykl o ujemnej długości, to metoda zwraca false.
+        /// Parametr d jest wówczas równy null.
+        /// </remarks>
+        /// <seealso cref="ShortestPathsGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static bool FloydWarshallShortestPaths(this Graph g, out PathsInfo[,] d)
         {
             if (!g.Directed)
@@ -273,6 +401,23 @@ namespace ASD.Graphs
             return true;
         }
 
+        /// <summary>
+        /// Wyznacza najkrótsze ścieżki algorytmem Floyda-Warshalla
+        /// </summary>
+        /// <param name="g">Badany graf</param>
+        /// <param name="d">Znalezione najkrótsze ścieżki (parametr wyjściowy)</param>
+        /// <returns>Informacja czy graf nie zawiera cyklu o ujemnej długości</returns>
+        /// <exception cref="ArgumentException">Gdy uruchomiona dla grafu nieskierowanego</exception>
+        /// <remarks>
+        /// Elementy tablicy d zawierają odległości pomiedzy każdą parą wierzchołków grafu.<para/>
+        /// Jeśli dla danej pary wierzchołków odpowiednia ścieżka nie istnieje, to odległość ma wartość NaN.<para/>
+        /// Metoda uruchomiona dla grafu nieskierowanego zgłasza wyjątek <see cref="ArgumentException"/>.<para/>
+        /// Jeśli badany graf zawiera cykl o ujemnej długości, to metoda zwraca false.
+        /// Parametr d jest wówczas równy null.<para/>
+        /// Metoda wykonuje obliczenia równolegle w wielu wątkach.
+        /// </remarks>
+        /// <seealso cref="ShortestPathsGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static bool FloydWarshallShortestPathsParallel(this Graph g, out PathsInfo[,] d)
         {
             if (!g.Directed)
@@ -325,6 +470,22 @@ namespace ASD.Graphs
             return parallelLoopResult.IsCompleted;
         }
 
+        /// <summary>
+        /// Wyznacza najkrótsze ścieżki algorytmem Johnsona
+        /// </summary>
+        /// <param name="g">Badany graf</param>
+        /// <param name="d">Znalezione najkrótsze ścieżki (parametr wyjściowy)</param>
+        /// <returns>Informacja czy graf nie zawiera cyklu o ujemnej długości</returns>
+        /// <exception cref="ArgumentException">Gdy uruchomiona dla grafu nieskierowanego</exception>
+        /// <remarks>
+        /// Elementy tablicy d zawierają odległości pomiedzy każdą parą wierzchołków grafu.<para/>
+        /// Jeśli dla danej pary wierzchołków odpowiednia ścieżka nie istnieje, to odległość ma wartość NaN.<para/>
+        /// Metoda uruchomiona dla grafu nieskierowanego zgłasza wyjątek <see cref="ArgumentException"/>.<para/>
+        /// Jeśli badany graf zawiera cykl o ujemnej długości, to metoda zwraca false.
+        /// Parametr d jest wówczas równy null.
+        /// </remarks>
+        /// <seealso cref="ShortestPathsGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static bool JohnsonShortestPaths(this Graph g, out PathsInfo[,] d)
         {
             d = null;
@@ -360,6 +521,23 @@ namespace ASD.Graphs
             return true;
         }
 
+        /// <summary>
+        /// Wyznacza najkrótsze ścieżki algorytmem Johnsona
+        /// </summary>
+        /// <param name="g">Badany graf</param>
+        /// <param name="d">Znalezione najkrótsze ścieżki (parametr wyjściowy)</param>
+        /// <returns>Informacja czy graf nie zawiera cyklu o ujemnej długości</returns>
+        /// <exception cref="ArgumentException">Gdy uruchomiona dla grafu nieskierowanego</exception>
+        /// <remarks>
+        /// Elementy tablicy d zawierają odległości pomiedzy każdą parą wierzchołków grafu.<para/>
+        /// Jeśli dla danej pary wierzchołków odpowiednia ścieżka nie istnieje, to odległość ma wartość NaN.<para/>
+        /// Metoda uruchomiona dla grafu nieskierowanego zgłasza wyjątek <see cref="ArgumentException"/>.<para/>
+        /// Jeśli badany graf zawiera cykl o ujemnej długości, to metoda zwraca false.
+        /// Parametr d jest wówczas równy null.<para/>
+        /// Metoda wykonuje obliczenia równolegle w wielu wątkach.
+        /// </remarks>
+        /// <seealso cref="ShortestPathsGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static bool JohnsonShortestPathsParallel(this Graph g, out PathsInfo[,] d)
         {
             d = null;
