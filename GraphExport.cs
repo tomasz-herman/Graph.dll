@@ -55,16 +55,22 @@ namespace ASD.Graphs
         /// Format wyeksportowanych grafów
         /// </summary>
         /// <remarks>Domyślnie "gif".</remarks>
+        /// <seealso cref="GraphExport"/>
+        /// <seealso cref="ASD.Graphs"/>
         public string Format { get; set; }
         
         /// <summary>
         /// Ścieżka do programu dot.exe z pakietu GraphViz
         /// </summary>
+        /// <seealso cref="GraphExport"/>
+        /// <seealso cref="ASD.Graphs"/>
         public string GraphvizPath { get; set; }
         
         /// <summary>
         /// Informacja czy pokazywać wagi krawędzi
         /// </summary>
+        /// <seealso cref="GraphExport"/>
+        /// <seealso cref="ASD.Graphs"/>
         public bool ShowWeights { get; set; }
         
         /// <summary>
@@ -74,6 +80,8 @@ namespace ASD.Graphs
         /// Ciąg formatujący musi być zgodny z zasadami formatowania liczb typu double w języku C#.<para/>
         /// Ciąg pusty lub null oznacza formatowanie domyślne.
         /// </remarks>
+        /// <seealso cref="GraphExport"/>
+        /// <seealso cref="ASD.Graphs"/>
         public string WeightsFormat { get; set; }
         
         /// <summary>
@@ -90,6 +98,8 @@ namespace ASD.Graphs
         /// że jako opisy przyjęte zostaną numery wierzchołków w grafie.<para/>
         /// Znaczenie parametru format opisane jest w opisie wyliczenia ExportFormat.<para/>
         /// </remarks>
+        /// <seealso cref="GraphExport"/>
+        /// <seealso cref="ASD.Graphs"/>
         public void Export(Graph g, string fileName = null, string[] verticesDescriptions = null, ExportFormat format = ExportFormat.View)
         {
             if (format == ExportFormat.None) return;
