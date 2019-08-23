@@ -46,15 +46,48 @@ namespace ASD.Graphs
             _comparer = comparer;
         }
 
-        public AVL() : this(Comparer<TKey>.Default)
+        /// <summary>
+        /// Tworzy puste drzewo AVL
+        /// </summary>
+        /// <param name="access">Delegacja wywoływana przy każdym dostępie do elementu drzewa</param>
+        /// <remarks>
+        /// Parametr access umożliwia stworzenie licznika odwołań (czyli eksperymentalne badanie wydajności).<para/>
+        /// Wartość domyślna (null) tego parametru oznacza metodę pustą (nie wykonującą żadnych działań).<para/>
+        /// Zwrotu "delegacja wywoływana przy każdym dostępie do elementu drzewa" nie należy rozumieć dosłownie,
+        /// ale liczba wywołań delegacji jest tego samego rzędu co liczba dostępów.
+        /// </remarks>
+        /// <seealso cref="AVL{TKey,TValue}"/>
+        /// <seealso cref="ASD.Graphs"/>
+        public AVL(Action access = null) : this(Comparer<TKey>.Default)
         {
 
         }
 
         private AVLNode Root { get; set; }
 
+        /// <summary>
+        /// Liczba elementów drzewa
+        /// </summary>
+        /// <remarks>
+        /// Liczba elementów jest odpowiednio modyfikowana przez metody <see cref="Insert"/>
+        /// i <see cref="Remove"/>.
+        /// </remarks>
+        /// <seealso cref="AVL{TKey,TValue}"/>
+        /// <seealso cref="ASD.Graphs"/>
         public int Count { get; private set; }
 
+        /// <summary>
+        /// Wyszukuje element w drzewie AVL
+        /// </summary>
+        /// <param name="key">Klucz szukanego elementu</param>
+        /// <param name="value">Wartość szukanego elementu (parametr wyjściowy)</param>
+        /// <returns>Informacja czy wyszukiwanie powiodło się</returns>
+        /// <remarks>
+        /// Metoda zwraca false gdy elementu o wskazanym kluczu nie ma w drzewie,
+        /// parametr v otrzymuje wówczas wartość domyślną dla typu T.
+        /// </remarks>
+        /// <seealso cref="AVL{TKey,TValue}"/>
+        /// <seealso cref="ASD.Graphs"/>
         public bool Search(TKey key, out TValue value)
         {
             var node = Root;
@@ -82,6 +115,15 @@ namespace ASD.Graphs
             return false;
         }
 
+        /// <summary>
+        /// Wstawia element do drzewa AVL
+        /// </summary>
+        /// <param name="key">Klucz wstawianego elementu</param>
+        /// <param name="value">Wartość wstawianego elementu</param>
+        /// <returns>Informacja czy wstawianie powiodło się</returns>
+        /// <remarks>Metoda zwraca false gdy element o wskazanym kluczu już wcześniej był w drzewie.</remarks>
+        /// <seealso cref="AVL{TKey,TValue}"/>
+        /// <seealso cref="ASD.Graphs"/>
         public bool Insert(TKey key, TValue value)
         {
             var node = Root;
@@ -371,6 +413,14 @@ namespace ASD.Graphs
             return rightLeft;
         }
 
+        /// <summary>
+        /// Usuwa element z drzewa AVL
+        /// </summary>
+        /// <param name="key">Klucz usuwanego elementu</param>
+        /// <returns>Informacja czy usuwanie powiodło się</returns>
+        /// <remarks>Metoda zwraca false gdy elementu o wskazanym kluczu nie było w drzewie.</remarks>
+        /// <seealso cref="AVL{TKey,TValue}"/>
+        /// <seealso cref="ASD.Graphs"/>
         public bool Remove(TKey key)
         {
             var node = Root;
@@ -601,11 +651,32 @@ namespace ASD.Graphs
             }
         }
 
+        /// <summary>
+        /// Ustawia delegację wywoływaną przy każdym dostępie do elementu drzewa
+        /// </summary>
+        /// <param name="access">Delegacja wywoływana przy każdym dostępie do elementu drzewa</param>
+        /// <remarks>
+        /// Metoda umożliwia stworzenie licznika odwołań (czyli eksperymentalne badanie wydajności).<para/>
+        /// Wartość (null) parametru access oznacza metodę pustą (nie wykonującą żadnych działań).<para/>
+        /// Zwrotu "delegacja wywoływana przy każdym dostępie do elementu drzewa" nie należy rozumieć dosłownie,
+        /// ale liczba wywołań delegacji jest tego samego rzędu co liczba dostępów
+        /// </remarks>
+        /// <seealso cref="AVL{TKey,TValue}"/>
+        /// <seealso cref="ASD.Graphs"/>
         public void SetAccess(Action access)
         {
 
         }
 
+        /// <summary>
+        /// Zmienia wartość elementu o wskazanym kluczu
+        /// </summary>
+        /// <param name="key">Klucz zmienianego elementu</param>
+        /// <param name="value">Nowa wartość elementu</param>
+        /// <returns>Informacja czy modyfikacja powiodła się</returns>
+        /// <remarks>Metoda zwraca false gdy elementu o wskazanym kluczu nie ma w drzewie.</remarks>
+        /// <seealso cref="AVL{TKey,TValue}"/>
+        /// <seealso cref="ASD.Graphs"/>
         public bool Modify(TKey key, TValue value)
         {
             var node = Root;
@@ -631,11 +702,31 @@ namespace ASD.Graphs
             return false;
         }
 
+        /// <summary>
+        /// Wylicza wszystkie elementy drzewa AVL
+        /// </summary>
+        /// <returns>Żądane wyliczenie elementów</returns>
+        /// <remarks>
+        /// Metoda umożliwia przeglądanie drzewa AVL przy pomocy instrukcji foreach.<para/>
+        /// Metoda jest wymagana przez interfejs <see cref="IEnumerable"/>.
+        /// </remarks>
+        /// <seealso cref="AVL{TKey,TValue}"/>
+        /// <seealso cref="ASD.Graphs"/>
         public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
         {
             return new AVLEnumerator(Root);
         }
 
+        /// <summary>
+        /// Wylicza wszystkie elementy drzewa AVL
+        /// </summary>
+        /// <returns>Żądane wyliczenie elementów</returns>
+        /// <remarks>
+        /// Metoda umożliwia przeglądanie drzewa AVL przy pomocy instrukcji foreach.<para/>
+        /// Metoda jest wymagana przez interfejs <see cref="IEnumerable"/>.
+        /// </remarks>
+        /// <seealso cref="AVL{TKey,TValue}"/>
+        /// <seealso cref="ASD.Graphs"/>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();

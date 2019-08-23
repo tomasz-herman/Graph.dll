@@ -26,6 +26,20 @@ namespace ASD.Graphs
         private Action access;
         private string serializedAccess;
         
+        /// <summary>
+        /// Tworzy pustą tablicę haszowaną
+        /// </summary>
+        /// <param name="access">Delegacja wywoływana przy każdym dostępie do elementu wewnętrznej tablicy</param>
+        /// <param name="capacity">Początkowy rozmiar tablicy</param>
+        /// <remarks>
+        /// Tablica automatycznie rozrasta się w miarę potrzeby.<para/>
+        /// Parametr access umożliwia stworzenie licznika odwołań (czyli eksperymentalne badanie wydajności).<para/>
+        /// Wartość domyślna (null) tego parametru oznacza metodę pustą (nie wykonującą żadnych działań).<para/>
+        /// Zwrotu "delegacja wywoływana przy każdym dostępie do elementu wewnętrznej tablicy"
+        /// nie należy rozumieć dosłownie, ale liczba wywołań delegacji jest tego samego rzędu co liczba dostępów.<para/>
+        /// </remarks>
+        /// <seealso cref="HashTable{TKey,TValue}"/>
+        /// <seealso cref="ASD.Graphs"/>
         public HashTable(Action access = null, int capacity = 8)
         {
             this.access = access ?? CMonDoSomething.Nothing;
@@ -33,12 +47,35 @@ namespace ASD.Graphs
             Count = 0;
         }
 
+        /// <summary>
+        /// Liczba elementów tablicy haszowanej
+        /// </summary>
+        /// <remarks>Liczba elementów jest odpowiednio modyfikowana przez metody <see cref="Insert"/>
+        /// i <see cref="Remove"/>.</remarks>
+        /// <seealso cref="HashTable{TKey,TValue}"/>
+        /// <seealso cref="ASD.Graphs"/>
         public int Count
         {
             get;
             private set;
         }
 
+        /// <summary>
+        /// Indeksator
+        /// </summary>
+        /// <param name="key">Klucz elementu</param>
+        /// <exception cref="Exception">Jeśli nie ma takiego elementu</exception>
+        /// <remarks>
+        /// Indeksator get zwraca wartość elementu o zadanym kluczu.
+        /// Jeśli nie ma takiego elementu zgłasza wyjątek ArgumentException.<para/>
+        /// Indeksator set modyfikuje wartość elementu o zadanym kluczu (jeśli taki istnieje)
+        /// lub dodaje element (jeśli nie było elementu o zadanym kluczu).<para/>
+        /// Indeksator set może spowodować podwojenie rozmiaru tablicy.<para/>
+        /// Jeśli wiadomo, że elementu nie ma w tablicy zamiast
+        /// indeksatora set wydajniej jest wykorzystać metodę Insert.
+        /// </remarks>
+        /// <seealso cref="HashTable{TKey,TValue}"/>
+        /// <seealso cref="ASD.Graphs"/>
         public TValue this[TKey key]
         {
             get
@@ -54,11 +91,35 @@ namespace ASD.Graphs
             }
         }
 
+        /// <summary>
+        /// Ustawia delegację wywoływaną przy każdym dostępie do elementu wewnętrznej tablicy
+        /// </summary>
+        /// <param name="access">Delegacja wywoływana przy każdym dostępie do elementu wewnętrznej tablicy</param>
+        /// <remarks>
+        /// Metoda umożliwia stworzenie licznika odwołań (czyli eksperymentalne badanie wydajności).<para/>
+        /// Wartość (null) parametru access oznacza metodę pustą (nie wykonującą żadnych działań).<para/>
+        /// Zwrotu "delegacja wywoływana przy każdym dostępie do elementu wewnętrznej tablicy"
+        /// nie należy rozumieć dosłownie, ale liczba wywołań delegacji jest tego samego rzędu co liczba dostępów.
+        /// </remarks>
+        /// <seealso cref="HashTable{TKey,TValue}"/>
+        /// <seealso cref="ASD.Graphs"/>
         public void SetAccess(Action access)
         {
             this.access = access ?? CMonDoSomething.Nothing;
         }
 
+        /// <summary>
+        /// Wstawia element do tablicy haszowanej
+        /// </summary>
+        /// <param name="k">Klucz wstawianego elementu</param>
+        /// <param name="v">Wartość wstawianego elementu</param>
+        /// <returns>Informacja czy wstawianie powiodło się</returns>
+        /// <remarks>
+        /// Metoda zwraca false gdy element o wskazanym kluczu już wcześniej był w tablicy.<para/>
+        /// Metoda może spowodować podwojenie rozmiaru wewnętrznej tablicy.
+        /// </remarks>
+        /// <seealso cref="HashTable{TKey,TValue}"/>
+        /// <seealso cref="ASD.Graphs"/>
         public bool Insert(TKey k, TValue v)
         {
             var (i, d) = FindSlot(k);
@@ -81,6 +142,17 @@ namespace ASD.Graphs
             return true;
         }
 
+        /// <summary>
+        /// Usuwa element z tablicy haszowanej
+        /// </summary>
+        /// <param name="k">Klucz usuwanego elementu</param>
+        /// <returns>Informacja czy usuwanie powiodło się</returns>
+        /// <remarks>,
+        /// Metoda zwraca false gdy elementu o wskazanym kluczu nie było w tablicy.<para/> 
+        /// Metoda nigdy nie powodowuje zmniejszenia rozmiaru wewnętrznej tablicy.
+        /// </remarks>
+        /// <seealso cref="HashTable{TKey,TValue}"/>
+        /// <seealso cref="ASD.Graphs"/>
         public bool Remove(TKey k)
         {
             var item = FindSlot(k).i;
@@ -92,6 +164,15 @@ namespace ASD.Graphs
             return true;
         }
 
+        /// <summary>
+        /// Zmienia wartość elementu o wskazanym kluczu
+        /// </summary>
+        /// <param name="key">Klucz zmienianego elementu</param>
+        /// <param name="value">Nowa wartość elementu</param>
+        /// <returns>Informacja czy modyfikacja powiodła się</returns>
+        /// <remarks>,Metoda zwraca false gdy elementu o wskazanym kluczu nie ma w tablicy.</remarks>
+        /// <seealso cref="HashTable{TKey,TValue}"/>
+        /// <seealso cref="ASD.Graphs"/>
         public bool Modify(TKey key, TValue value)
         {
             var item = FindSlot(key).Item1;
@@ -102,6 +183,18 @@ namespace ASD.Graphs
             return true;
         }
 
+        /// <summary>
+        /// Wyszukuje element w tablicy haszowanej
+        /// </summary>
+        /// <param name="key">Klucz szukanego elementu</param>
+        /// <param name="value">Wartość szukanego elementu (parametr wyjściowy)</param>
+        /// <returns>Informacja czy wyszukiwanie powiodło się</returns>
+        /// <remarks>
+        /// Metoda zwraca false gdy elementu o wskazanym kluczu nie ma w tablicy,
+        /// Parametr v otrzymuje wówczas wartość domyślną dla typu T.
+        /// </remarks>
+        /// <seealso cref="HashTable{TKey,TValue}"/>
+        /// <seealso cref="ASD.Graphs"/>
         public bool Search(TKey key, out TValue value)
         {
             var item = FindSlot(key).Item1;
@@ -115,11 +208,31 @@ namespace ASD.Graphs
             return true;
         }
 
+        /// <summary>
+        /// Wylicza wszystkie elementy tablicy haszowanej
+        /// </summary>
+        /// <returns>Żądane wyliczenie elementów</returns>
+        /// <remarks>
+        /// Metoda umożliwia przeglądanie tablicy haszowanej przy pomocy instrukcji foreach.<para/>
+        /// Metoda jest wymagana przez interfejs <see cref="IEnumerable"/>.
+        /// </remarks>
+        /// <seealso cref="HashTable{TKey,TValue}"/>
+        /// <seealso cref="ASD.Graphs"/>
         public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
         {
             return new HashTableEnumerator(this);
         }
 
+        /// <summary>
+        /// Wylicza wszystkie elementy tablicy haszowanej
+        /// </summary>
+        /// <returns>Żądane wyliczenie elementów</returns>
+        /// <remarks>
+        /// Metoda umożliwia przeglądanie tablicy haszowanej przy pomocy instrukcji foreach.<para/>
+        /// Metoda jest wymagana przez interfejs <see cref="IEnumerable"/>.
+        /// </remarks>
+        /// <seealso cref="HashTable{TKey,TValue}"/>
+        /// <seealso cref="ASD.Graphs"/>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();

@@ -20,24 +20,58 @@ namespace ASD.Graphs
         private Action _access;
         private string _serializedAccess;
         
+        /// <summary>
+        /// Tworzy pustą listę
+        /// </summary>
+        /// <param name="access">Delegacja wywoływana przy każdym dostępie do elementu wewnętrznej listy</param>
+        /// <param name="capacity">Początkowy rozmiar listy</param>
+        /// <remarks>
+        /// Parametr access umożliwia stworzenie licznika odwołań (czyli eksperymentalne badanie wydajności).<para/>
+        /// Wartość domyślna (null) tego parametru oznacza metodę pustą (nie wykonującą żadnych działań).<para/>
+        /// Zwrotu "delegacja wywoływana przy każdym dostępie do elementu wewnętrznej listy"
+        /// nie należy rozumieć dosłownie, ale liczba wywołań delegacji jest tego samego rzędu co liczba dostępów.
+        /// </remarks>
+        /// <seealso cref="SimpleList{TKey,TValue}"/>
+        /// <seealso cref="ASD.Graphs"/>
         public SimpleList(Action access = null, int capacity = 8)
         {
             SetAccess(access);
             _pairs = new List<KeyValuePair<TKey, TValue>>(capacity);
         }
         
+        /// <summary>
+        /// Liczba elementów listy
+        /// </summary>
+        /// <seealso cref="SimpleList{TKey,TValue}"/>
+        /// <seealso cref="ASD.Graphs"/>
         public int Count => _pairs.Count;
 
+        /// <summary>
+        /// Ustawia delegację wywoływaną przy każdym dostępie do elementu wewnętrznej listy
+        /// </summary>
+        /// <param name="access">Delegacja wywoływana przy każdym dostępie do elementu wewnętrznej listy</param>
+        /// <remarks>
+        /// Parametr access umożliwia stworzenie licznika odwołań (czyli eksperymentalne badanie wydajności).<para/>
+        /// Wartość (null) parametru access oznacza metodę pustą (nie wykonującą żadnych działań).<para/>
+        /// Zwrotu "delegacja wywoływana przy każdym dostępie do elementu wewnętrznej listy"
+        /// nie należy rozumieć dosłownie, ale liczba wywołań delegacji jest tego samego rzędu co liczba dostępów.
+        /// </remarks>
+        /// <seealso cref="SimpleList{TKey,TValue}"/>
+        /// <seealso cref="ASD.Graphs"/>
         public void SetAccess(Action access)
         {
             _access = access ?? CMonDoSomething.Nothing;
         }
-        
-        internal void Insert(KeyValuePair<TKey, TValue> keyValuePair_0)
-        {
-            Insert(keyValuePair_0.Key, keyValuePair_0.Value);
-        }
 
+        /// <summary>
+        /// Wstawia element do listy
+        /// </summary>
+        /// <param name="k">Klucz wstawianego elementu</param>
+        /// <param name="v">Wartość wstawianego elementu</param>
+        /// <returns>Informacja czy wstawianie powiodło się</returns>
+        /// <remarks>Metoda zwraca false gdy element o wskazanym kluczu już wcześniej był na liście.</remarks>
+        /// <seealso cref="SimpleList{TKey,TValue}"/>
+        /// <seealso cref="ASD.Graphs"/>
         public bool Insert(TKey k, TValue v)
         {
             foreach (var t in _pairs)
@@ -50,6 +84,14 @@ namespace ASD.Graphs
             return true;
         }
 
+        /// <summary>
+        /// Usuwa element z listy
+        /// </summary>
+        /// <param name="k">Klucz usuwanego elementu</param>
+        /// <returns>Informacja czy usuwanie powiodło się</returns>
+        /// <remarks>Metoda zwraca false gdy elementu o wskazanym kluczu nie było na liście.</remarks>
+        /// <seealso cref="SimpleList{TKey,TValue}"/>
+        /// <seealso cref="ASD.Graphs"/>
         public bool Remove(TKey k)
         {
             for (var i = 0; i < _pairs.Count; i++)
@@ -62,6 +104,15 @@ namespace ASD.Graphs
             return false;
         }
 
+        /// <summary>
+        /// Zmienia wartość elementu o wskazanym kluczu
+        /// </summary>
+        /// <param name="key">Klucz zmienianego elementu</param>
+        /// <param name="value">Nowa wartość elementu</param>
+        /// <returns>Informacja czy modyfikacja powiodła się</returns>
+        /// <remarks>Metoda zwraca false gdy elementu o wskazanym kluczu nie ma na liście.</remarks>
+        /// <seealso cref="SimpleList{TKey,TValue}"/>
+        /// <seealso cref="ASD.Graphs"/>
         public bool Modify(TKey key, TValue value)
         {
             for (var i = 0; i < _pairs.Count; i++)
@@ -74,6 +125,18 @@ namespace ASD.Graphs
             return false;
         }
 
+        /// <summary>
+        /// Wyszukuje element w liście
+        /// </summary>
+        /// <param name="key">Klucz szukanego elementu</param>
+        /// <param name="value">Wartość szukanego elementu (parametr wyjściowy)</param>
+        /// <returns>Informacja czy wyszukiwanie powiodło się</returns>
+        /// <remarks>
+        /// Metoda zwraca false gdy elementu o wskazanym kluczu nie ma na liscie,
+        /// parametr v otrzymuje wówczas wartość domyślną dla typu T.
+        /// </remarks>
+        /// <seealso cref="SimpleList{TKey,TValue}"/>
+        /// <seealso cref="ASD.Graphs"/>
         public bool Search(TKey key, out TValue value)
         {
             foreach (var t in _pairs)
@@ -87,11 +150,31 @@ namespace ASD.Graphs
             return false;
         }
 
+        /// <summary>
+        /// Wylicza wszystkie elementy listy
+        /// </summary>
+        /// <returns>Żądane wyliczenie elementów</returns>
+        /// <remarks>
+        /// Metoda umożliwia przeglądanie listy przy pomocy instrukcji foreach.
+        /// Metoda jest wymagana przez interfejs <see cref="IEnumerable"/>.
+        /// </remarks>
+        /// <seealso cref="SimpleList{TKey,TValue}"/>
+        /// <seealso cref="ASD.Graphs"/>
         public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
         {
             return _pairs.GetEnumerator();
         }
 
+        /// <summary>
+        /// Wylicza wszystkie elementy listy
+        /// </summary>
+        /// <returns>Żądane wyliczenie elementów</returns>
+        /// <remarks>
+        /// Metoda umożliwia przeglądanie listy przy pomocy instrukcji foreach.
+        /// Metoda jest wymagana przez interfejs <see cref="IEnumerable"/>.
+        /// </remarks>
+        /// <seealso cref="SimpleList{TKey,TValue}"/>
+        /// <seealso cref="ASD.Graphs"/>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
