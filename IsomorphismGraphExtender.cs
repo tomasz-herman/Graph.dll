@@ -10,6 +10,21 @@ namespace ASD.Graphs
     /// <seealso cref="ASD.Graphs"/>
     public static class IsomorphismGraphExtender
     {
+        /// <summary>
+        /// Bada czy zadane mapowanie wierzchołków definiuje izomorfizm grafów
+        /// </summary>
+        /// <param name="g">Pierwszy badany graf</param>
+        /// <param name="h">Drugi badany graf</param>
+        /// <param name="map">Zadane mapowanie wierzchołków</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <remarks>
+        /// Mapowanie wierzchołków zdefiniowane jest w ten sposób,
+        /// że wierzchołkowi v w grafie g odpowiada wierzchołek map[v] w grafie h.<para/>
+        /// Badana jest struktura grafu, sposób reprezentacji nie ma znaczenia.
+        /// </remarks>
+        /// <seealso cref="IsomorphismGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static bool IsIsomorphic(this Graph g, Graph h, int[] map)
         {
             if (g.VerticesCount != h.VerticesCount || g.EdgesCount != h.EdgesCount) return false;
@@ -35,6 +50,22 @@ namespace ASD.Graphs
             return true;
         }
 
+        /// <summary>
+        /// Bada czy zadane mapowanie wierzchołków definiuje izomorfizm grafów
+        /// </summary>
+        /// <param name="g">Pierwszy badany graf</param>
+        /// <param name="h">Drugi badany graf</param>
+        /// <param name="map">Zadane mapowanie wierzchołków</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <remarks>
+        /// Mapowanie wierzchołków zdefiniowane jest w ten sposób,
+        /// że wierzchołkowi v w grafie g odpowiada wierzchołek map[v] w grafie h.<para/>
+        /// Badana jest struktura grafu, sposób reprezentacji nie ma znaczenia.<para/>
+        /// Metoda wykonuje obliczenia równolegle w wielu wątkach.
+        /// </remarks>
+        /// <seealso cref="IsomorphismGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static bool IsIsomorphicParallel(this Graph g, Graph h, int[] map)
         {
             if (g.VerticesCount != h.VerticesCount) return false;
@@ -63,6 +94,21 @@ namespace ASD.Graphs
             return result.IsCompleted;
         }
 
+        /// <summary>
+        /// Bada izomorfizm grafów metodą pełnego przeglądu (backtracking)
+        /// </summary>
+        /// <param name="g">Pierwszy badany graf</param>
+        /// <param name="h">Drugi badany graf</param>
+        /// <returns>Znalezione mapowanie wierzchołków</returns>
+        /// <remarks>
+        /// Jeśli grafy są izomorficzne metoda zwraca mapowanie wierzchołków grafu g na wierzchołki grafu h,
+        /// w przeciwnym przypadku metoda zwraca null<para/>
+        /// Odpowiedniość wierzchołków zdefiniowana jest w ten sposób,
+        /// że wierzchołkowi v w grafie g odpowiada wierzchołek map[v] w grafie h.<para/>
+        /// Badana jest struktura grafu, sposób reprezentacji nie ma znaczenia.
+        /// </remarks>
+        /// <seealso cref="IsomorphismGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static int[] Isomorphism(this Graph g, Graph h)
         {
             if (g.VerticesCount != h.VerticesCount || g.EdgesCount != h.EdgesCount ||
