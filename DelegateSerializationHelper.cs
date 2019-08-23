@@ -11,6 +11,13 @@ namespace ASD.Graphs
     /// <seealso cref="ASD.Graphs"/>
     public static class DelegateSerializationHelper
     {
+        /// <summary>
+        /// Serializacja delegacji
+        /// </summary>
+        /// <param name="delegate">Serializowane pole delegacyjne</param>
+        /// <returns>string zawierający zserializowany obiekt</returns>
+        /// <seealso cref="DelegateSerializationHelper"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static string Serialize(Delegate @delegate)
         {
             if (@delegate == null)
@@ -32,6 +39,13 @@ namespace ASD.Graphs
             return text + ")";
         }
 
+        /// <summary>
+        /// Deserializacja delegacji
+        /// </summary>
+        /// <param name="serializedDelegate">string zawierający zserializowany obiekt</param>
+        /// <returns>Odtworzony obiekt</returns>
+        /// <seealso cref="DelegateSerializationHelper"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static object Deserialize(string serializedDelegate)
         {
             if (serializedDelegate == null)
