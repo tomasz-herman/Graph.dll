@@ -14,6 +14,11 @@ namespace ASD.Graphs
     [Serializable]
     public class EdgesMaxPriorityQueue : EdgesPriorityQueue
     {
+        /// <summary>
+        /// Tworzy pustą kolejkę priorytetową krawędzi
+        /// </summary>
+        /// <seealso cref="EdgesMaxPriorityQueue"/>
+        /// <seealso cref="ASD.Graphs"/>
         public EdgesMaxPriorityQueue():base(Cmp)
         {
             

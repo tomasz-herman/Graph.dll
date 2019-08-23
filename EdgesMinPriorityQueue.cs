@@ -14,6 +14,11 @@ namespace ASD.Graphs
     [Serializable]
     public class EdgesMinPriorityQueue : EdgesPriorityQueue
     {
+        /// <summary>
+        /// Tworzy pustą kolejkę priorytetową krawędzi
+        /// </summary>
+        /// <seealso cref="EdgesMinPriorityQueue"/>
+        /// <seealso cref="ASD.Graphs"/>
         public EdgesMinPriorityQueue() : base(Cmp)
         {
 

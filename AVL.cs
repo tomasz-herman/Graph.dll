@@ -40,8 +40,8 @@ namespace ASD.Graphs
     public class AVL<TKey, TValue> : IAbstractDictionary<TKey, TValue>
     {
         private readonly IComparer<TKey> _comparer;
-
-        public AVL(IComparer<TKey> comparer)
+        
+        private AVL(IComparer<TKey> comparer)
         {
             _comparer = comparer;
         }
