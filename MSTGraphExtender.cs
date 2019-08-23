@@ -8,6 +8,24 @@ namespace ASD.Graphs
     /// <seealso cref="ASD.Graphs"/>
     public static class MSTGraphExtender
     {
+        /// <summary>
+        /// Wyznacza minimalne drzewo rozpinające grafu algorytmem Prima
+        /// </summary>
+        /// <param name="g">Badany graf</param>
+        /// <returns>
+        /// Krotka (weight, mst) składająca się z wagi minimalnego drzewa rozpinającego i grafu opisującego to drzewo
+        /// </returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <remarks>
+        /// Jeśli graf g jest typu <see cref="AdjacencyMatrixGraph"/> to wyznaczone drzewo rozpinające mst jest typu
+        /// <see cref="AdjacencyListsGraph{AVLAdjacencyList}"/>, w przeciwnym
+        /// przypadku drzewo rozpinające mst jest takiego samego typu jak graf g.<para/>
+        /// Dla grafu skierowanego metoda zgłasza wyjątek <see cref="ArgumentException"/>.<para/>
+        /// Wyznaczone drzewo reprezentowane jest jako graf bez cykli, to umożliwia jednolitą obsługę sytuacji
+        /// gdy analizowany graf jest niespójny, wyznaczany jest wówczas las rozpinający.
+        /// </remarks>
+        /// <seealso cref="MSTGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static (double weight, Graph mst) Prim(this Graph g)
         {
             if (g.Directed)
@@ -27,6 +45,24 @@ namespace ASD.Graphs
             return (weight, tree);
         }
         
+        /// <summary>
+        /// Wyznacza minimalne drzewo rozpinające grafu algorytmem Kruskala
+        /// </summary>
+        /// <param name="g">Badany graf</param>
+        /// <returns>
+        /// Krotka (weight, mst) składająca się z wagi minimalnego drzewa rozpinającego i grafu opisującego to drzewo
+        /// </returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <remarks>
+        /// Jeśli graf g jest typu <see cref="AdjacencyMatrixGraph"/> to wyznaczone drzewo rozpinające mst jest typu
+        /// <see cref="AdjacencyListsGraph{AVLAdjacencyList}"/>, w przeciwnym
+        /// przypadku drzewo rozpinające mst jest takiego samego typu jak graf g.<para/>
+        /// Dla grafu skierowanego metoda zgłasza wyjątek <see cref="ArgumentException"/>.<para/>
+        /// Wyznaczone drzewo reprezentowane jest jako graf bez cykli, to umożliwia jednolitą obsługę sytuacji
+        /// gdy analizowany graf jest niespójny, wyznaczany jest wówczas las rozpinający.
+        /// </remarks>
+        /// <seealso cref="MSTGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static (double weight, Graph mst) Kruskal(this Graph g)
         {
             if (g.Directed)
@@ -52,6 +88,27 @@ namespace ASD.Graphs
             return (weight, tree);
         }
         
+        /// <summary>
+        /// Wyznacza minimalne drzewo rozpinające grafu algorytmem Boruvki
+        /// </summary>
+        /// <param name="g">Badany graf</param>
+        /// <returns>
+        /// Krotka (weight, mst) składająca się z wagi minimalnego drzewa rozpinającego i grafu opisującego to drzewo
+        /// </returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <remarks>
+        /// Jeśli graf g jest typu <see cref="AdjacencyMatrixGraph"/> to wyznaczone drzewo rozpinające mst jest typu
+        /// <see cref="AdjacencyListsGraph{AVLAdjacencyList}"/>, w przeciwnym
+        /// przypadku drzewo rozpinające mst jest takiego samego typu jak graf g.<para/>
+        /// Dla grafu skierowanego metoda zgłasza wyjątek <see cref="ArgumentException"/>.<para/>
+        /// Wyznaczone drzewo reprezentowane jest jako graf bez cykli,
+        /// to umożliwia jednolitą obsługę sytuacji gdy analizowany graf jest niespójny,
+        /// wyznaczany jest wówczas las rozpinający.<para/>
+        /// Jest to nieco zmodyfikowana wersja algorytmu Boruvki
+        /// (nie ma operacji "sciągania" spójnych składowych w jeden wierzchołek).
+        /// </remarks>
+        /// <seealso cref="MSTGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static (double weight, Graph mst) Boruvka(this Graph g)
         {
             if (g.Directed)
