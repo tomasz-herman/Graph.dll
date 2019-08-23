@@ -10,6 +10,21 @@ namespace ASD.Graphs
     /// <seealso cref="ASD.Graphs"/>
     public static class BiconnectedGraphExtender
     {
+        /// <summary>
+        /// Wyznacza składowe dwuspójne
+        /// </summary>
+        /// <param name="g">Badany graf</param>
+        /// <returns>
+        /// Krotka (count, bcc, ap) składająca się z liczby składowych dwuspójnych,
+        /// grafu opisującego te składowe i tablicy zawierającej punkty artykulacji
+        /// </returns>
+        /// <exception cref="ArgumentException">Gdy uruchomiona dla grafu skierowanego</exception>
+        /// <remarks>
+        /// Wagi krawędzi w grafie opisującym składowe dwuspójne (bcc) odpowiadają numerom tych składowych.<para/>
+        /// Metoda uruchomiona dla grafu skierowanego zgłasza wyjątek ArgumentException.
+        /// </remarks>
+        /// <seealso cref="BiconnectedGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static (int count, Graph bcc, int[] ap) BiconnectedComponents(this Graph g)
         {
             if (g.Directed)
