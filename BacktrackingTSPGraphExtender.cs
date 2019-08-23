@@ -8,6 +8,27 @@ namespace ASD.Graphs
     /// <seealso cref="ASD.Graphs"/>
     public static class BacktrackingTSPGraphExtender
     {
+        /// <summary>
+        /// Znajduje rozwiązanie dokładne problemu komiwojażera metodą pełnego przeglądu (backtracking)
+        /// </summary>
+        /// <param name="g">Badany graf</param>
+        /// <returns>
+        /// Krotka (weight, cycle) składająca się z długości (sumy wag krawędzi)
+        /// znalezionego cyklu i tablicy krawędzi tworzących ten cykl)
+        /// </returns>
+        /// <exception cref="ArgumentException">Gdy uruchomiona dla grafu zawierającego krawędź o wadze ujemnej</exception>
+        /// <remarks>
+        /// Metoda przeznaczona jest dla grafów z nieujemnymi wagami krawędzi.<para/>
+        /// Uruchomiona dla grafu zawierającego krawędź o wadze ujemnej zgłasza wyjątek ArgumentException.
+        /// (Warunek ten sprawdzany jest w sposób przybliżony,
+        /// jedynie przy próbie dodania krawędzi o ujemnej wadze do konstruowanego cyklu).<para/>
+        /// Elementy (krawędzie) umieszczone są w tablicy cycle
+        /// w kolejności swojego następstwa w znalezionym cyklu Hamiltona.<para/>
+        /// Jeśli w badanym grafie nie istnieje cykl Hamiltona metoda zwraca krotkę (NaN,null).<para/>
+        /// Metodę można stosować dla grafów skierowanych i nieskierowanych.
+        /// </remarks>
+        /// <seealso cref="BacktrackingTSPGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static (double weight, Edge[] cycle) BacktrackingTSP(this Graph g)
         {
             if (g.VerticesCount <= (g.Directed ? 1 : 2))
