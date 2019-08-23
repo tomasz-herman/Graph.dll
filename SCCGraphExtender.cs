@@ -9,6 +9,19 @@ namespace ASD.Graphs
     /// <seealso cref="ASD.Graphs"/>
     public static class SCCGraphExtender
     {
+        /// <summary>
+        /// Wyznacza odwrotność grafu
+        /// </summary>
+        /// <param name="g">Badany graf</param>
+        /// <returns>Odwrotność grafu</returns>
+        /// <exception cref="ArgumentException">Gdy uruchomiona dla grafu nieskierowanego</exception>
+        /// <remarks>
+        /// Odwrotność grafu to graf skierowany o wszystkich krawędziach
+        /// przeciwnie skierowanych niż w grafie pierwotnym.<para/>
+        /// Metoda uruchomiona dla grafu nieskierowanego zgłasza wyjątek <see cref="ArgumentException"/>.
+        /// </remarks>
+        /// <seealso cref="SCCGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static Graph Reverse(this Graph g)
         {
             if (!g.Directed)
@@ -22,6 +35,20 @@ namespace ASD.Graphs
             return graph;
         }
 
+        /// <summary>
+        /// Wyznacza silnie spójne składowe przy pomocy algorytmu Kosaraju
+        /// </summary>
+        /// <param name="g">Badany graf</param>
+        /// <returns>
+        /// Krotka (count, scc) składająca się z liczby silnie spójnych składowych i tablicy opisującej te składowe
+        /// </returns>
+        /// <exception cref="ArgumentException">Gdy uruchomiona dla grafu nieskierowanego</exception>
+        /// <remarks>
+        /// Metoda uruchomiona dla grafu nieskierowanego zgłasza wyjątek <see cref="ArgumentException"/>.<para/>
+        /// Tablica scc zawiera informacje do, której silnie spójnej składowej należy dany wierzchołek.
+        /// </remarks>
+        /// <seealso cref="SCCGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static (int count, int[] scc) Kosaraju(this Graph g)
         {
             if (!g.Directed)
@@ -32,19 +59,15 @@ namespace ASD.Graphs
             var count = 0;
             var scc = new int[g.VerticesCount];
 
-            // ReSharper disable once ImplicitlyCapturedClosure
             bool PostVisitVertex(int vert)
             {
-                // ReSharper disable once AccessToModifiedClosure
                 count++;
                 array[vertCount - count] = vert;
                 return true;
             }
 
-            // ReSharper disable once ImplicitlyCapturedClosure
             bool PreVisitVertex(int vert)
             {
-                // ReSharper disable once AccessToModifiedClosure
                 scc[vert] = count - 1;
                 return true;
             }
@@ -54,6 +77,20 @@ namespace ASD.Graphs
             return (count, scc);
         }
 
+        /// <summary>
+        /// Wyznacza silnie spójne składowe przy pomocy algorytmu Tarjana
+        /// </summary>
+        /// <param name="g">Badany graf</param>
+        /// <returns>
+        /// Krotka (count, scc) składająca się z liczby silnie spójnych składowych i tablicy opisującej te składowe
+        /// </returns>
+        /// <exception cref="ArgumentException">Gdy uruchomiona dla grafu nieskierowanego</exception>
+        /// <remarks>
+        /// Metoda uruchomiona dla grafu nieskierowanego zgłasza wyjątek <see cref="ArgumentException"/>.<para/>
+        /// Tablica scc zawiera informacje do, której silnie spójnej składowej należy dany wierzchołek.
+        /// </remarks>
+        /// <seealso cref="SCCGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static (int count, int[] scc) Tarjan(this Graph g)
         {
             if (!g.Directed)
