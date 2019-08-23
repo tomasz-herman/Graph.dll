@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace ASD.Graphs
@@ -12,11 +10,30 @@ namespace ASD.Graphs
     /// <seealso cref="ASD.Graphs"/>
     public static class GraphHelperExtender
     {
+        /// <summary>
+        /// Bada czy podana wartość typu double odpowiada nieliczbie
+        /// </summary>
+        /// <param name="d">Badana wartość</param>
+        /// <returns>
+        /// To "nakładka" upraszczająca wywołanie metody <see cref="double.IsNaN(double)"/>.<para/>
+        /// Wykorzystanie <see cref="double.op_Equality"/> spowoduje błędną odpowiedź (zawsze false).
+        /// </returns>
+        /// <seealso cref="GraphHelperExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static bool IsNaN(this double d)
         {
             return double.IsNaN(d);
         }
 
+        /// <summary>
+        /// Bada czy zadane grafy są jednakowe
+        /// </summary>
+        /// <param name="g">Pierwszy badany graf</param>
+        /// <param name="h">Drugi badany graf</param>
+        /// <returns>Informacja czy zadane grafy są jednakowe</returns>
+        /// <remarks>Badana jest struktura grafu, sposób reprezentacji nie ma znaczenia.</remarks>
+        /// <seealso cref="GraphHelperExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static bool IsEqual(this Graph g, Graph h)
         {
             if (g.VerticesCount != h.VerticesCount || g.EdgesCount != h.EdgesCount) return false;
@@ -31,6 +48,18 @@ namespace ASD.Graphs
             return true;
         }
 
+        /// <summary>
+        /// Bada czy zadane grafy są jednakowe
+        /// </summary>
+        /// <param name="g">Pierwszy badany graf</param>
+        /// <param name="h">Drugi badany graf</param>
+        /// <returns>Informacja czy zadane grafy są jednakowe</returns>
+        /// <remarks>
+        /// Badana jest struktura grafu, sposób reprezentacji nie ma znaczenia.<para/>
+        /// Metoda wykonuje obliczenia równolegle w wielu wątkach.
+        /// </remarks>
+        /// <seealso cref="GraphHelperExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static bool IsEqualParallel(this Graph g, Graph h)
         {
             if (g.VerticesCount != h.VerticesCount || g.EdgesCount != h.EdgesCount) return false;
@@ -47,6 +76,21 @@ namespace ASD.Graphs
             return result.IsCompleted;
         }
 
+        /// <summary>
+        /// Wyznacza sumę grafów
+        /// </summary>
+        /// <param name="g">Pierwszy sumowany graf</param>
+        /// <param name="h">Drugi sumowany graf</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException">Gdy argumentem jest graf skierowany</exception>
+        /// <remarks>
+        /// Suma grafów to graf składający się ze wszystkich wierchołków i krawędzi sumowanych grafów
+        /// (wierzchołki pochodzące z drugiego grafu są odpowiednio przenumerowane).<para/>
+        /// Można sumować grafy reprezentowane w różny sposób,
+        /// suma ma taką reprezentację jak pierwszy z sumowanych grafów).
+        /// </remarks>
+        /// <seealso cref="GraphHelperExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static Graph Union(this Graph g, Graph h)
         {
             if (g.Directed != h.Directed)
@@ -65,6 +109,23 @@ namespace ASD.Graphs
             return union;
         }
 
+        /// <summary>
+        /// Sortowanie topologiczne wierzchołków grafu
+        /// </summary>
+        /// <param name="g">Badany graf</param>
+        /// <param name="original2topological">Tablica opisująca przekształcenie numeracji pierwotnej w topologiczną</param>
+        /// <param name="topological2original">Tablica opisująca przekształcenie numeracji topologicznej w pierworną</param>
+        /// <returns>Informacja czy posortowanie topologiczne jest możliwe</returns>
+        /// <exception cref="ArgumentException">Gdy uruchomiona dla grafu nieskierowanego</exception>
+        /// <remarks>
+        /// Wartość original2topological[i] to numer w porządku topologicznym wierzchołka o numerze pierwotnym i.<para/>
+        /// Wartość topological2original[i] to numer w porządku pierwotnym wierzchołka o numerze topologicznym i.<para/>
+        /// Jeśli posortowanie topologiczne grafu g nie jest możliwe (graf nie jest acykliczny)
+        /// to parametry original2topological i topological2original są równe null.<para/>
+        /// Metoda uruchomiona dla grafu nieskierowanego zgłasza wyjątek <see cref="ArgumentException"/>.
+        /// </remarks>
+        /// <seealso cref="GraphHelperExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static bool TopologicalSort(this Graph g, out int[] original2topological, out int[] topological2original)
         {
             if (!g.Directed)
