@@ -11,6 +11,43 @@ namespace ASD.Graphs
     /// <seealso cref="ASD.Graphs"/>
     public static class MaxFlowGraphExtender
     {
+        /// <summary>
+        /// Wyznacza maksymalny przepływ metodą FordaFulkersona lub metodą Dinica
+        /// </summary>
+        /// <param name="g">Badany graf (sieć przepływowa)</param>
+        /// <param name="source">Wierzchołek źródłowy</param>
+        /// <param name="target">Wierzchołek docelowy</param>
+        /// <param name="af">Metoda powiększania przepływu</param>
+        /// <param name="matrixToHashTable">Czy optymalizować sposób reprezentacji grafu rezydualnego</param>
+        /// <returns>
+        /// Krotka (value, flow) składająca się z wartości maksymalnego przepływu
+        /// i grafu opisującego ten przepływ
+        /// </returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <remarks>
+        /// Jeśli jako parametr af zostanie wybrane wyszukiwanie ścieżki powiększającej to metoda realizuje
+        /// algorytm Forda-Fulkersona, jeśli jako parametr af zostanie wybrane wyszukiwanie przepływu blokującego
+        /// to metoda realizuje algorytm Dinica.<para/>
+        ///  Można oczywiście zdefiniować własną metodę powiększania przepływu zgodną
+        /// z typem delegacyjnym <see cref="AugmentFlow"/>.<para/>
+        /// Jeśli parametr matrixToHashTable ma wartość true oraz graf g jest typu <see cref="AdjacencyMatrixGraph"/>
+        /// (czyli macierz sąsiedztwa) i ma nie więcej niż 10% krawędzi, to wykorzystywany przez algorytm graf
+        /// rezydualny jest typu <see cref="AdjacencyListsGraph{HashTableAdjacencyList}"/>.
+        /// W przeciwnym przypadku graf rezydualny jest takiego samego typu jak graf g.<para/>
+        /// Natomiast jeśli graf g jest typu <see cref="AdjacencyMatrixGraph"/> to inne grafy robocze
+        /// (ścieżka powiększająca, przepływ blokujący, graf warstwowy) są typu
+        /// <see cref="AdjacencyListsGraph{HashTableAdjacencyList}"/> niezależnie
+        /// od wartości parametru matrixToHashTable.<para/>
+        /// Wynikowy przepływ maksymalny flow zawsze jest takiego samego typu jak graf g
+        /// (niezależnie od wartości parametru matrixToHashTable.<para/>
+        /// Jeśli po danej krawędzi nie płynie żaden przepływ,
+        /// to nadal jest ona w wynikowym grafie flow (oczywiście z wagą 0).<para/>
+        /// Metoda uruchomiona dla grafu nieskierowanego lub grafu
+        /// z ujemnymi wagami krawędzi zgłasza wyjątek <see cref="ArgumentException"/>.<para/>
+        /// Gdy parametry source i target są równe metoda również zgłasza wyjątek <see cref="ArgumentException"/>.
+        /// </remarks>
+        /// <seealso cref="MaxFlowGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static (double value, Graph flow) FordFulkersonDinicMaxFlow(this Graph g, int source, int target, AugmentFlow af, bool matrixToHashTable = true)
         {
             if (!g.Directed)
@@ -71,16 +108,70 @@ namespace ASD.Graphs
             return (value, flow);
         }
         
+        /// <summary>
+        /// Wyznacza najkrótszą ścieżkę powiekszającą
+        /// </summary>
+        /// <param name="g">Graf rezydualny</param>
+        /// <param name="s">Wierzchołek źródłowy</param>
+        /// <param name="t">Wierzchołek docelowy</param>
+        /// <returns>
+        /// Krotka (augmentingValue, augmentingFlow) składająca się z przepustowości wyznaczonej ścieżki
+        /// i grafu opisującego tą ścieżkę
+        /// </returns>
+        /// <remarks>
+        /// Jeśli ścieżka powiększająca nie istnieje, to zwracana jest krotka (0.0,null).<para/>
+        /// Jeśli graf g jest typu <see cref="AdjacencyMatrixGraph"/> to wyznaczona ścieżka powiększająca p
+        /// jest typu <see cref="AdjacencyListsGraph{HashTableAdjacencyList}"/>,
+        /// w przeciwnym przypadku ścieżka p jest takiego samego typu jak graf g.
+        /// </remarks>
+        /// <seealso cref="MaxFlowGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static (double augmentingValue, Graph augmentingFlow) BFPath(this Graph g, int s, int t)
         {
             return g.FindPath<EdgesQueue>(s, t);
         }
         
+        /// <summary>
+        /// Wyznacza ścieżkę powiekszającą o maksymalnej przepustowości
+        /// </summary>
+        /// <param name="g">Graf rezydualny</param>
+        /// <param name="s">Wierzchołek źródłowy</param>
+        /// <param name="t">Wierzchołek docelowy</param>
+        /// <returns>
+        /// Krotka (augmentingValue, augmentingFlow) składająca się z przepustowości wyznaczonej ścieżki
+        /// i grafu opisującego tą ścieżkę
+        /// </returns>
+        /// <remarks>
+        /// Jeśli ścieżka powiększająca nie istnieje, to zwracana jest krotka (0.0,null).<para/>
+        /// Jeśli graf g jest typu <see cref="AdjacencyMatrixGraph"/> to wyznaczona ścieżka powiększająca p jest typu
+        /// <see cref="AdjacencyListsGraph{HashTableAdjacencyList}"/>,
+        /// w przeciwnym przypadku ścieżka p jest takiego samego typu jak graf g.
+        /// </remarks>
+        /// <seealso cref="MaxFlowGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static (double augmentingValue, Graph augmentingFlow) MaxFlowPath(this Graph g, int s, int t)
         {
             return g.FindPath<EdgesMaxPriorityQueue>(s, t);
         }
         
+        /// <summary>
+        /// Wyznacza ścieżkę powiekszającą o maksymalnej przepustowości spośród najkrótszych ścieżek
+        /// </summary>
+        /// <param name="g">Graf rezydualny</param>
+        /// <param name="s">Wierzchołek źródłowy</param>
+        /// <param name="t">Wierzchołek docelowy</param>
+        /// <returns>
+        /// Krotka (augmentingValue, augmentingFlow) składająca się z przepustowości wyznaczonej ścieżki
+        /// i grafu opisującego tą ścieżkę
+        /// </returns>
+        /// <remarks>
+        /// Jeśli ścieżka powiększająca nie istnieje, to zwracana jest krotka (0.0,null).<para/>
+        /// Jeśli graf g jest typu <see cref="AdjacencyMatrixGraph"/> to wyznaczona ścieżka powiększająca p jest typu
+        /// <see cref="AdjacencyListsGraph{HashTableAdjacencyList}"/>,
+        /// w przeciwnym przypadku ścieżka p jest takiego samego typu jak graf g.
+        /// </remarks>
+        /// <seealso cref="MaxFlowGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static (double augmentingValue, Graph augmentingFlow) BFMaxPath(this Graph g, int s, int t)
         {
             var pi = new PathsInfo[g.VerticesCount];
@@ -107,6 +198,24 @@ namespace ASD.Graphs
             return (pi[t].Dist, g.BuildGraph(s, t, pi));
         }
         
+        /// <summary>
+        /// Wyznacza przepływ blokujący oryginalnym algorytmem Dinica
+        /// </summary>
+        /// <param name="g">Graf rezydualny</param>
+        /// <param name="source">Wierzchołek źródłowy</param>
+        /// <param name="target">Wierzchołek docelowy</param>
+        /// <returns>
+        /// Krotka (augmentingValue, augmentingFlow) składająca się z przepustowości wyznaczonej ścieżki
+        /// i grafu opisującego tą ścieżkę
+        /// </returns>
+        /// <remarks>
+        /// Dla zerowego przepływu blokującego zwracana jest krotka (0.0,null).<para/>
+        /// Jeśli graf g jest typu <see cref="AdjacencyMatrixGraph"/> to wyznaczony przepływ blokujący bf jest typu
+        /// <see cref="AdjacencyListsGraph{HashTableAdjacencyList}"/>,
+        /// w przeciwnym przypadku przepływ blokujący bf jest takiego samego typu jak graf g.
+        /// </remarks>
+        /// <seealso cref="MaxFlowGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static (double augmentingValue, Graph augmentingFlow) OriginalDinicBlockingFlow(Graph g, int source, int target)
         {
             var list = new List<Edge>();
@@ -148,6 +257,25 @@ namespace ASD.Graphs
             return (augmentingValue, augmentingFlow);
         }
         
+        /// <summary>
+        /// Wyznacza przepływ blokujący algorytmem trzech Hindusów
+        /// </summary>
+        /// <param name="g">Graf rezydualny</param>
+        /// <param name="source">Wierzchołek źródłowy</param>
+        /// <param name="target">Wierzchołek docelowy</param>
+        /// <returns>
+        /// Krotka (augmentingValue, augmentingFlow) składająca się z przepustowości wyznaczonej ścieżki
+        /// i grafu opisującego tą ścieżkę
+        /// </returns>
+        /// <remarks>
+        /// Dla zerowego przepływu blokującego zwracana jest krotka (0.0,null).<para/>
+        /// Jeśli graf g jest typu <see cref="AdjacencyMatrixGraph"/> to wyznaczony przepływ blokujący bf jest typu
+        /// <see cref="AdjacencyListsGraph{HashTableAdjacencyList}"/>,
+        /// w przeciwnym przypadku przepływ blokujący bf jest takiego samego typu jak graf g.<para/>
+        /// Wspomniani Hindusi to Malhotra, Kumar i Maheshwari.
+        /// </remarks>
+        /// <seealso cref="MaxFlowGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static (double augmentingValue, Graph augmentingFlow) MKMBlockingFlow(Graph g, int source, int target)
         {
             var levelGraph = ConstructLevelGraph(g, source, target);
@@ -187,6 +315,25 @@ namespace ASD.Graphs
             return (augmentingValue, augmentingFlow);
         }
         
+        /// <summary>
+        /// Wyznacza przepływ blokujący algorytmem DFS
+        /// </summary>
+        /// <param name="g">Graf rezydualny</param>
+        /// <param name="source">Wierzchołek źródłowy</param>
+        /// <param name="target">Wierzchołek docelowy</param>
+        /// <returns>
+        /// Krotka (augmentingValue, augmentingFlow) składająca się z przepustowości wyznaczonej ścieżki
+        /// i grafu opisującego tą ścieżkę
+        /// </returns>
+        /// <remarks>
+        /// Dla zerowego przepływu blokującego zwracana jest krotka (0.0,null).<para/>
+        /// Jeśli graf g jest typu <see cref="AdjacencyMatrixGraph"/> to wyznaczony przepływ blokujący bf jest typu
+        /// <see cref="AdjacencyListsGraph{HashTableAdjacencyList}"/>,
+        /// w przeciwnym przypadku przepływ blokujący bf jest takiego samego typu jak graf g.<para/>
+        /// Algorytm jest zainspirowany wykładem Marka Cygana (nagranym na Uniwersytecie Warszawskim w roku 2008)
+        /// </remarks>
+        /// <seealso cref="MaxFlowGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static (double augmentingValue, Graph augmentingFlow) DFSBlockingFlow(Graph g, int source, int target)
         {
             var levelGraph = ConstructLevelGraph(g, source, target);
@@ -327,6 +474,44 @@ namespace ASD.Graphs
             return flow;
         }
         
+        /// <summary>
+        /// Wyznacza maksymalny przepływ metodą przepychania wstepnego przepływu (push-relabel).
+        /// </summary>
+        /// <param name="g">Badany graf (sieć przepływowa)</param>
+        /// <param name="source">Wierzchołek źródłowy</param>
+        /// <param name="target">Wierzchołek docelowy</param>
+        /// <param name="af">Parametr ignorowany</param>
+        /// <param name="matrixToHashTable">Czy optymalizować sposób reprezentacji grafu rezydualnego</param>
+        /// <returns>
+        /// Krotka (value, flow) składająca się z wartości maksymalnego przepływu i grafu opisującego ten przepływ
+        /// </returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <remarks>
+        /// Parametr fi został wprowadzony dla zachowania zgodności
+        /// sygnatur metod PushRelabelMaxFlow i <see cref="FordFulkersonDinicMaxFlow"/>.<para/>
+        /// Jeśli parametr matrixToHashTable ma wartość true oraz graf g jest
+        /// typu <see cref="AdjacencyMatrixGraph"/> (czyli macierz sąsiedztwa) i ma nie więcej
+        /// niż 10% krawędzi, to wykorzystywany przez algorytm graf rezydualny jest
+        /// typu <see cref="AdjacencyListsGraph{HashTableAdjacencyList}"/>. W przeciwnym przypadku
+        /// graf rezydualny jest takiego samego typu jak graf g.<para/>
+        /// Wynikowy przepływ maksymalny flow zawsze jest takiego samego typu jak graf g
+        /// (niezależnie od wartości parametru matrixToHashTable).<para/>
+        /// Jeśli po danej krawędzi nie płynie żaden przepływ,
+        /// to nadal jest ona w wynikowym grafie flow (oczywiście z wagą 0).<para/>
+        /// Algorytm nie dopuszcza krawędzi wychodzących ze żródła o wagach większych od 1E+14
+        /// (zgłaszany jest wyjątek <see cref="ArgumentException"/>). Wynika to ze specyfiki algorytmu
+        /// przepychania wstępnego przepływu oraz specyfiki arytmetyki maszynowej
+        /// na liczbach typu double (wartość graniczna jest dobrana arbitralnie).
+        /// Jeśli rzeczywiście wagi są tak duże to należy użyć metody <see cref="FordFulkersonDinicMaxFlow"/>,
+        /// która nie ma takich ograniczeń (ale oczywiście podlega
+        /// ograniczeniom arytmetyki na liczbach typu double).<para/>
+        /// Metoda uruchomiona dla grafu nieskierowanego lub grafu
+        /// z ujemnymi wagami krawędzi zgłasza wyjątek <see cref="ArgumentException"/>.<para/>
+        /// Gdy parametry source i target są równe metoda
+        /// również zgłasza wyjątek <see cref="ArgumentException"/>.<para/>
+        /// </remarks>
+        /// <seealso cref="MaxFlowGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static (double value, Graph flow) PushRelabelMaxFlow(this Graph g, int source, int target, AugmentFlow af = null, bool matrixToHashTable = true)
         {
             if (!g.Directed)

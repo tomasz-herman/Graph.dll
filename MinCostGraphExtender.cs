@@ -13,6 +13,41 @@ namespace ASD.Graphs
         
         private delegate bool FordBellmanShortestPaths(Graph g, int s, out PathsInfo[] d);
         
+        /// <summary>
+        /// Wyznacza maksymalny przepływ o minimalnym koszcie
+        /// </summary>
+        /// <param name="g">Graf przepustowości</param>
+        /// <param name="c">Graf kosztów</param>
+        /// <param name="source">Wierzchołek źródłowy</param>
+        /// <param name="target">Wierzchołek docelowy</param>
+        /// <param name="parallel">Informacja czy algorytm ma korzystać z równoległej wersji algorytmu Forda-Bellmana</param>
+        /// <param name="mf">Metoda wyznaczania wstępnego maksymalnego przepływu (bez uwzględniania kosztów)</param>
+        /// <param name="af">Metoda powiększania przepływu</param>
+        /// <param name="matrixToAVL">Czy optymalizować sposób reprezentacji grafu rezydualnego</param>
+        /// <returns>
+        /// Krotka (value, cost, flow) składająca się z
+        /// wartości maksymalnego przepływu, jego kosztu i grafu opisującego ten przepływ
+        /// </returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <remarks>
+        /// Można wybrać metodę wyznaczania wstępnego maksymalnego przepływu (parametr mf).<para/>
+        /// Domyślna wartość mf (null) oznacza konstrukcję wstępnego przepływu z wykorzystaniem sztucznej krawędzi.<para/>
+        /// Można wybrać metodę powiększania przepływu (parametr pf).<para/>
+        /// Znaczenie tego parametru zależy od wybranej metody wyznaczania wstępnego maksymalnego przepływu
+        /// (parametr mf), dla niektórych wartości parametru mf
+        /// (np. <see cref="MaxFlowGraphExtender.FordFulkersonDinicMaxFlow"/>)
+        /// jawne wskazanie metody powiększania przepływu jest konieczne
+        /// (pozostawienie domyślnej wartości parametru pf (null)
+        /// spowoduje zgłoszenie wyjątku <see cref="ArgumentException"/>).<para/>
+        /// Metoda uruchomiona dla grafu nieskierowanego lub grafu
+        /// z ujemnymi przepustowościami krawędzi zgłasza wyjątek <see cref="ArgumentException"/>.<para/>
+        /// Gdy grafy przepustowości i kosztów mają różną strukturę lub parametry
+        /// source i target są równe metoda również zgłasza wyjątek <see cref="ArgumentException"/>.<para/>
+        /// Gdy w grafie przepustowości istnieją krawędzie w obu kierunkach
+        /// pomiędzy parą wierzchołków metoda również zgłasza wyjątek <see cref="ArgumentException"/>.
+        /// </remarks>
+        /// <seealso cref="MinCostFlowGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static (double value, double cost, Graph flow) MinCostFlow(this Graph g, Graph c, int source, int target, bool parallel = false, MaxFlow mf = null, AugmentFlow af = null, bool matrixToAVL = true)
         {
             if (!g.Directed)
