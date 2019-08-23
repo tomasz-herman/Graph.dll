@@ -13,6 +13,24 @@ namespace ASD.Graphs
     /// <seealso cref="ASD.Graphs"/>
     public class GraphExport
     {
+        /// <summary>
+        /// Tworzy obiekt "Eksportera Grafów"
+        /// </summary>
+        /// <param name="showWeights">Informacja czy pokazywać wagi krawędzi</param>
+        /// <param name="weightsFormat">Ciąg formatujący dla opisu wag krawędzi</param>
+        /// <param name="graphvizPath">Ścieżka do programu dot.exe z pakietu GraphViz</param>
+        /// <exception cref="FileNotFoundException"></exception>
+        /// <remarks>
+        /// Jako parametr weightsFormat należy podać ciąg formatujący
+        /// zgodny z zasadami formatowania liczb typu double w języku C#.<para/>
+        /// Ciąg pusty lub null (wartość domyślna) oznacza formatowanie domyślne.<para/>
+        /// Jako parametr pathGraphVizDot należy podać pełną ścieżkę (wraz z nazwą pliku)
+        /// np. h:\graphviz\bin\dot.exe<para/>
+        /// Domyślna wartość parametru pathGraphVizDot (null) oznacza, że w celu znalezienia programu dot.exe
+        /// z pakietu GraphViz zostanią przeszukane katalogi "Program Files" i "Program Files (86)" na dysku C.
+        /// </remarks>
+        /// <seealso cref="GraphExport"/>
+        /// <seealso cref="ASD.Graphs"/>
         public GraphExport(bool showWeights = true, string weightsFormat = null, string graphvizPath = null)
         {
             Format = "gif";
@@ -33,14 +51,45 @@ namespace ASD.Graphs
             GraphvizPath = graphvizPath;
         }
         
+        /// <summary>
+        /// Format wyeksportowanych grafów
+        /// </summary>
+        /// <remarks>Domyślnie "gif".</remarks>
         public string Format { get; set; }
         
+        /// <summary>
+        /// Ścieżka do programu dot.exe z pakietu GraphViz
+        /// </summary>
         public string GraphvizPath { get; set; }
         
+        /// <summary>
+        /// Informacja czy pokazywać wagi krawędzi
+        /// </summary>
         public bool ShowWeights { get; set; }
         
+        /// <summary>
+        /// Ciąg formatujący dla opisu wag krawędzi
+        /// </summary>
+        /// <remarks>
+        /// Ciąg formatujący musi być zgodny z zasadami formatowania liczb typu double w języku C#.<para/>
+        /// Ciąg pusty lub null oznacza formatowanie domyślne.
+        /// </remarks>
         public string WeightsFormat { get; set; }
         
+        /// <summary>
+        /// Exportuje graf do zadanego formatu
+        /// </summary>
+        /// <param name="g">Dany graf</param>
+        /// <param name="fileName">Nazwa pliku wynikowego</param>
+        /// <param name="verticesDescriptions">Opisy wierzchołków grafu</param>
+        /// <param name="format">Format pliku wynikowego</param>
+        /// <exception cref="ArgumentException"></exception>
+        /// <remarks>
+        /// Domyślna wartość parametru fileName (null) oznacza, że zostanie wygenerowana losowa nazwa pliku.<para/>
+        /// Domyślna wartość parametru verticesDescriptions (null) oznacza,
+        /// że jako opisy przyjęte zostaną numery wierzchołków w grafie.<para/>
+        /// Znaczenie parametru format opisane jest w opisie wyliczenia ExportFormat.<para/>
+        /// </remarks>
         public void Export(Graph g, string fileName = null, string[] verticesDescriptions = null, ExportFormat format = ExportFormat.View)
         {
             if (format == ExportFormat.None) return;
