@@ -9,6 +9,20 @@ namespace ASD.Graphs
     /// <seealso cref="ASD.Graphs"/>
     public static class EulerPathGraphExtender
     {
+        /// <summary>
+        /// Znajduje scieżkę Eulera w grafie
+        /// </summary>
+        /// <param name="g">Badany graf</param>
+        /// <param name="ec">Znaleziona ścieżka (parametr wyjściowy)</param>
+        /// <returns>Informacja czy ścieżka Eulera istnieje</returns>
+        /// <remarks>
+        /// Jeśli w badanym grafie nie istnieje ścieżka Eulera metoda zwraca false,
+        /// parametr ec ma wówczas wartość null.<para/>
+        /// Metoda nie modyfikuje badanego grafu.<para/>
+        /// Metoda implementuje algorytm Fleury'ego.
+        /// </remarks>
+        /// <seealso cref="EulerPathGraphExtender"/>
+        /// <seealso cref="ASD.Graphs"/>
         public static bool EulerPath(this Graph g, out Edge[] ec)
         {
             ec = null;
