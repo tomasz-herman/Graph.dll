@@ -10,7 +10,7 @@ namespace ASD.Graphs
 {
 	/// <summary>Serializator biblioteki Graph</summary>
 	/// <remarks>
-	/// Serializator zbudowany jest na podstawie <see cref="_dataContractSerializer"/> (ale nie jest klasą pochodną)
+	/// Serializator zbudowany jest na podstawie <see cref="DataContractSerializer"/> (ale nie jest klasą pochodną)
 	/// i należy go używać w analogiczny sposób.<para/>
 	/// UWAGA: Poprawnie serializują się jedynie pola delegacyjne skojarzone z metodami statycznymi.
 	/// </remarks>
