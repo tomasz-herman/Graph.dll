@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-
-namespace ASD.Graphs
+﻿namespace ASD.Graphs
 {
     /// <summary>
     /// Interfejs opisujący listy incydencji (listy sąsiedztwa) wierzchołków grafu

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ASD.Graphs
+﻿namespace ASD.Graphs
 {
     /// <summary>
     /// Interfejs opisujący kontenery na krawędzie
