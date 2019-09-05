@@ -30,12 +30,12 @@ namespace ASD.Graphs
 		/// <seealso cref="ASD.Graphs"/>
 		public ASDGraphsDataContractSerializer(Type type, IEnumerable<Type> knownTypes = null)
 		{
-			var list = new List<Type>(Types);
+			var knownList = new List<Type>(Types);
 			if (knownTypes != null)
 				foreach (var t in knownTypes)
-					if (!list.Contains(t))
-						list.Add(t);
-			_dataContractSerializer = new DataContractSerializer(type, list, int.MaxValue, false, true, null, new Resolver());
+					if (!knownList.Contains(t))
+						knownList.Add(t);
+			_dataContractSerializer = new DataContractSerializer(type, knownList, int.MaxValue, false, true, null, new Resolver());
 		}
 
 		/// <summary>
@@ -72,18 +72,17 @@ namespace ASD.Graphs
 
 		static ASDGraphsDataContractSerializer()
 		{
-			var array = new Type[10];
-			array[0] = typeof(EdgesStack);
-			array[1] = typeof(EdgesQueue);
-			array[2] = typeof(EdgesPriorityQueue);
-			array[3] = typeof(EdgesMaxPriorityQueue);
-			array[4] = typeof(EdgesMinPriorityQueue);
-			array[5] = typeof(SimpleList<int, double>);
-			array[6] = typeof(HashTable<int, double>);
-			array[7] = typeof(AVL<int, double>);
-			array[8] = typeof(Edge);
-			array[9] = typeof(UnionFind);
-			Types = array;
+			Types = new Type[10];
+			Types[0] = typeof(EdgesStack);
+			Types[1] = typeof(EdgesQueue);
+			Types[2] = typeof(EdgesPriorityQueue);
+			Types[3] = typeof(EdgesMaxPriorityQueue);
+			Types[4] = typeof(EdgesMinPriorityQueue);
+			Types[5] = typeof(SimpleList<int, double>);
+			Types[6] = typeof(HashTable<int, double>);
+			Types[7] = typeof(AVL<int, double>);
+			Types[8] = typeof(Edge);
+			Types[9] = typeof(UnionFind);
 		}
 	}
 }
@@ -93,39 +92,31 @@ internal class Resolver : DataContractResolver
 	public override bool TryResolveType(Type type, Type declaredType, DataContractResolver knownTypeResolver, out XmlDictionaryString typeName, out XmlDictionaryString typeNamespace)
 	{
 		var xmlDictionary = new XmlDictionary();
-		var t = type.Namespace + "." + type.Name;
-		if (t == "ASD.Graphs.AdjacencyMatrixGraph")
+		switch (type.Namespace + "." + type.Name)
 		{
-			typeName = xmlDictionary.Add("AdjacencyMatrixGraph");
-			typeNamespace = xmlDictionary.Add("http://schemas.datacontract.org/2004/07/ASD.Graphs");
-			return true;
+			case "ASD.Graphs.AdjacencyMatrixGraph":
+				typeName = xmlDictionary.Add("AdjacencyMatrixGraph");
+				typeNamespace = xmlDictionary.Add("http://schemas.datacontract.org/2004/07/ASD.Graphs");
+				return true;
+			case "ASD.Graphs.AdjacencyListsGraph`1":
+				typeName = xmlDictionary.Add(type.Name + "[[" + type.GenericTypeArguments[0].Name + "]]");
+				typeNamespace = xmlDictionary.Add("http://schemas.datacontract.org/2004/07/ASD.Graphs");
+				return true;
+			case "ASD.Graphs.SimpleAdjacencyList":
+				typeName = xmlDictionary.Add("SimpleAdjacencyList");
+				typeNamespace = xmlDictionary.Add("http://schemas.datacontract.org/2004/07/ASD.Graphs");
+				return true;
+			case "ASD.Graphs.HashTableAdjacencyList":
+				typeName = xmlDictionary.Add("HashTableAdjacencyList");
+				typeNamespace = xmlDictionary.Add("http://schemas.datacontract.org/2004/07/ASD.Graphs");
+				return true;
+			case "ASD.Graphs.AVLAdjacencyList":
+				typeName = xmlDictionary.Add("AVLAdjacencyList");
+				typeNamespace = xmlDictionary.Add("http://schemas.datacontract.org/2004/07/ASD.Graphs");
+				return true;
+			default:
+				return knownTypeResolver.TryResolveType(type, declaredType, knownTypeResolver, out typeName, out typeNamespace);
 		}
-		if (t == "ASD.Graphs.AdjacencyListsGraph`1")
-		{
-			typeName = xmlDictionary.Add(type.Name + "[[" + type.GenericTypeArguments[0].Name + "]]");
-			typeNamespace = xmlDictionary.Add("http://schemas.datacontract.org/2004/07/ASD.Graphs");
-			return true;
-		}
-		if (t == "ASD.Graphs.SimpleAdjacencyList")
-		{
-			typeName = xmlDictionary.Add("SimpleAdjacencyList");
-			typeNamespace = xmlDictionary.Add("http://schemas.datacontract.org/2004/07/ASD.Graphs");
-			return true;
-		}
-		bool flag4 = t == "ASD.Graphs.HashTableAdjacencyList";
-		if (flag4)
-		{
-			typeName = xmlDictionary.Add("HashTableAdjacencyList");
-			typeNamespace = xmlDictionary.Add("http://schemas.datacontract.org/2004/07/ASD.Graphs");
-			return true;
-		}
-		if (t != "ASD.Graphs.AVLAdjacencyList")
-		{
-			return knownTypeResolver.TryResolveType(type, declaredType, knownTypeResolver, out typeName, out typeNamespace);
-		}
-		typeName = xmlDictionary.Add("AVLAdjacencyList");
-		typeNamespace = xmlDictionary.Add("http://schemas.datacontract.org/2004/07/ASD.Graphs");
-		return true;
 	}
 
 	public override Type ResolveName(string typeName, string typeNamespace, Type declaredType, DataContractResolver knownTypeResolver)
@@ -138,59 +129,39 @@ internal class Resolver : DataContractResolver
 			{
 				if (hash != 1000958293u)
 				{
-					if (hash == 1178924210u)
-					{
-						if (text == "HashTableAdjacencyList::http://schemas.datacontract.org/2004/07/ASD.Graphs")
-						{
-							RuntimeTypeHandle handle = typeof(HashTableAdjacencyList).TypeHandle;
-							return Type.GetTypeFromHandle(handle);
-						}
-					}
+					if (hash != 1178924210u)
+						return knownTypeResolver.ResolveName(typeName, typeNamespace, declaredType, knownTypeResolver);
+					if (text == "HashTableAdjacencyList::http://schemas.datacontract.org/2004/07/ASD.Graphs")
+						return Type.GetTypeFromHandle(typeof(HashTableAdjacencyList).TypeHandle);
 				}
 				else if (text == "AdjacencyListsGraph`1[[AVLAdjacencyList]]::http://schemas.datacontract.org/2004/07/ASD.Graphs")
-				{
 					return typeof(AdjacencyListsGraph<AVLAdjacencyList>);
-				}
 			}
 			else if (text == "AdjacencyMatrixGraph::http://schemas.datacontract.org/2004/07/ASD.Graphs")
-			{
 				return typeof(AdjacencyMatrixGraph);
-			}
 		}
 		else if (hash <= 1593056421u)
 		{
 			if (hash != 1575937462u)
 			{
-				if (hash == 1593056421u)
-				{
-					if (text == "AVLAdjacencyList::http://schemas.datacontract.org/2004/07/ASD.Graphs")
-					{
-						return typeof(AVLAdjacencyList);
-					}
-				}
+				if (hash != 1593056421u)
+					return knownTypeResolver.ResolveName(typeName, typeNamespace, declaredType, knownTypeResolver);
+				if (text == "AVLAdjacencyList::http://schemas.datacontract.org/2004/07/ASD.Graphs")
+					return typeof(AVLAdjacencyList);
 			}
 			else if (text == "SimpleAdjacencyList::http://schemas.datacontract.org/2004/07/ASD.Graphs")
-			{
 				return typeof(SimpleAdjacencyList);
-			}
 		}
 		else if (hash != 3073243566u)
 		{
-			if (hash == 3300024250u)
-			{
-				if (text == "AdjacencyListsGraph`1[[HashTableAdjacencyList]]::http://schemas.datacontract.org/2004/07/ASD.Graphs")
-				{
-					return typeof(AdjacencyListsGraph<HashTableAdjacencyList>);
-				}
-			}
+			if (hash != 3300024250u)
+				return knownTypeResolver.ResolveName(typeName, typeNamespace, declaredType, knownTypeResolver);
+			if (text == "AdjacencyListsGraph`1[[HashTableAdjacencyList]]::http://schemas.datacontract.org/2004/07/ASD.Graphs")
+				return typeof(AdjacencyListsGraph<HashTableAdjacencyList>);
 		}
-		else
-		{
-			if (text == "AdjacencyListsGraph`1[[SimpleAdjacencyList]]::http://schemas.datacontract.org/2004/07/ASD.Graphs")
-			{
-				return typeof(AdjacencyListsGraph<SimpleAdjacencyList>);
-			}
-		}
+		else if (text == "AdjacencyListsGraph`1[[SimpleAdjacencyList]]::http://schemas.datacontract.org/2004/07/ASD.Graphs")
+			return typeof(AdjacencyListsGraph<SimpleAdjacencyList>);
+
 		return knownTypeResolver.ResolveName(typeName, typeNamespace, declaredType, knownTypeResolver);
 	}
 
