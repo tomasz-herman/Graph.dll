@@ -11,7 +11,7 @@ W świecie informatyki graf jest abstrakcyjnym typem danych, który implementuje
   - [Dijkstra](https://github.com/tomasz-herman/Graph.dll/blob/master/ASD/Graphs/ShortestPathsGraphExtender.cs#L223 "ShortestPathsGraphExtender.cs")
   - [DAG](https://github.com/tomasz-herman/Graph.dll/blob/master/ASD/Graphs/ShortestPathsGraphExtender.cs#L279 "ShortestPathsGraphExtender.cs")
   - [BFPaths](https://github.com/tomasz-herman/Graph.dll/blob/master/ASD/Graphs/ShortestPathsGraphExtender.cs#L321 "ShortestPathsGraphExtender.cs")
-  - [Floyd-Warshall](https://github.com/tomasz-herman/Graph.dll/blob/ASD/Graphs/master/ShortestPathsGraphExtender.cs#L357 "ShortestPathsGraphExtender.cs")
+  - [Floyd-Warshall](https://github.com/tomasz-herman/Graph.dll/blob/master/ASD/Graphs/ShortestPathsGraphExtender.cs#L357 "ShortestPathsGraphExtender.cs")
   - [Johnson](https://github.com/tomasz-herman/Graph.dll/blob/master/ASD/Graphs/ShortestPathsGraphExtender.cs#L489 "ShortestPathsGraphExtender.cs")
 - Aproksymacyjne TSP:
   - [Simple Greedy](https://github.com/tomasz-herman/Graph.dll/blob/master/ASD/Graphs/AproxTSPGraphExtender.cs#L27 "AproxTSPGraphExtender.cs")
