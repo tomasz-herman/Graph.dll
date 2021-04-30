@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Graph.dll", "Graph.dll\Graph.dll.csproj", "{A7D3E9DF-8A2F-4D31-8806-C3E6482C68A5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Graph.test", "Graph.test\Graph.test.csproj", "{224DA466-599E-4DAE-BCA0-50BBD9347506}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Graph.exe", "Graph.exe\Graph.exe.csproj", "{FF4C39C1-2CC4-4227-BAC4-C03937760DE1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A7D3E9DF-8A2F-4D31-8806-C3E6482C68A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7D3E9DF-8A2F-4D31-8806-C3E6482C68A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7D3E9DF-8A2F-4D31-8806-C3E6482C68A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7D3E9DF-8A2F-4D31-8806-C3E6482C68A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{224DA466-599E-4DAE-BCA0-50BBD9347506}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{224DA466-599E-4DAE-BCA0-50BBD9347506}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{224DA466-599E-4DAE-BCA0-50BBD9347506}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{224DA466-599E-4DAE-BCA0-50BBD9347506}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF4C39C1-2CC4-4227-BAC4-C03937760DE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF4C39C1-2CC4-4227-BAC4-C03937760DE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF4C39C1-2CC4-4227-BAC4-C03937760DE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF4C39C1-2CC4-4227-BAC4-C03937760DE1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

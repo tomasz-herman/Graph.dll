@@ -34,7 +34,7 @@ namespace ASD.Graphs
 				foreach (var t in knownTypes)
 					if (!knownList.Contains(t))
 						knownList.Add(t);
-			_dataContractSerializer = new DataContractSerializer(type, knownList, int.MaxValue, false, true, null, new Resolver());
+			_dataContractSerializer = new DataContractSerializer(type, knownList);
 		}
 
 		/// <summary>
