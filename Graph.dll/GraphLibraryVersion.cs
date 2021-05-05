@@ -28,7 +28,7 @@
         /// <remarks>Numer rewizji zmieniany jest w przypadku wprowadzenia poprawek podczas trwania semestru.</remarks>
         /// <seealso cref="GraphLibraryVersion"/>
         /// <seealso cref="ASD.Graphs"/>
-        public static int Revision => 1;
+        public static int Revision => 2;
         
         /// <summary>
         /// Pełny numer wersji

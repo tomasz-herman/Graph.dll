@@ -4,6 +4,23 @@
         <TargetFramework>net5.0</TargetFramework>
         <RootNamespace>ASD.Graphs</RootNamespace>
         <AssemblyName>Graph</AssemblyName>
+        <PackageId>Graph.dll</PackageId>
+        <PackageVersion>7.2.2</PackageVersion>
+        <Title>Graph.dll</Title>
+        <Authors>Tomasz Herman</Authors>
+        <Description>Niniejsza biblioteka umożliwia zapis grafu za pomocą listy lub macierzy sąsiedztwa oraz późniejszą jego obróbkę za pomocą licznych algorytmów.</Description>
+        <PackageProjectUrl>https://github.com/tomasz-herman/Graph.dll</PackageProjectUrl>
+        <PackageLicenseUrl>https://raw.githubusercontent.com/tomasz-herman/Graph.dll/master/UNLICENSE</PackageLicenseUrl>
+        <RepositoryUrl>https://github.com/tomasz-herman/Graph.dll.git</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <DocumentationFile>bin\Debug\Graph.dll.xml</DocumentationFile>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <DocumentationFile>bin\Release\Graph.dll.xml</DocumentationFile>
     </PropertyGroup>
 
 </Project>
