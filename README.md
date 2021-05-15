@@ -42,6 +42,14 @@ W świecie informatyki graf jest abstrakcyjnym typem danych, który implementuje
 - [Maksymalny Przepływ o Minimalnym Koszcie](https://github.com/tomasz-herman/Graph.dll/blob/master/Graph.dll/MinCostGraphExtender.cs#L51 "MinCostGraphExtender.cs")
 - [Generowanie Grafów](https://github.com/tomasz-herman/Graph.dll/blob/master/Graph.dll/RandomGraphGenerator.cs#L11 "RandomGraphGenerator.cs")
 
+# Używanie biblioteki w projekcie
+
+Żeby użyć tej biblioteki wytarczy dodać referecję paczki nugeta w pliku projektu:
+
+```
+<PackageReference Include="Graph.dll" Version="7.2.3" />
+```
+
 # Motywacja
 
 Dostarczona studentom wersja biblioteka uniemożliwia użycie jej na systemach innych niż Windows, takich jak systemy bazujące na jądrze Linux czy MacOS. Zgodnie z otrzymanym mailem nie jest także planowana wersja kompatybilna z innymi systemami. Zdeobfuskowana wersja biblioteki umożliwia korzystanie z niej na innych sytemach. **Jest to jedyny cel powstania tego projektu. Biblioteka tu zamieszczona powinna być używana wyłącznie w tym celu, oraz tylko w wypadku posiadania licencji na używanie niezobfuskowanej wersji biblioteki.** Ponadto stwierdzenie, że "system Windows jest obecnie systemem dominującym i ktoś kto nie porusza się w nim sprawnie, po prostu nie jest dobrym informatykiem" jest po prostu obraźliwe i aroganckie. Wielu ludzi świadomie nie korzysta z systemu Windows, gdyż jest to na przykład sprzeczne z ich światopoglądem, a zmuszanie ich do tego(celowe bądź nie) jest niewłaściwe. Nie każdy chce być szpiegowany przez system operacyjny, nie każdy też zgadza się z polityką Microsoftu. Poniżej załączona część wypowiedzi:
